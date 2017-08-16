@@ -1,0 +1,57 @@
+[user]
+  name = Anatolii Prylutskyi
+  email = anpryl@gmail.com
+[push]
+  default = current
+[core]
+  excludesfile = ~/.gitignore_global
+[merge]
+  tool = vimdiff
+  log = true
+  summary = true
+[mergetool]
+  prompt = false
+[mergetool "vimdiff"]
+  cmd = nvim -d $BASE $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+[alias]
+  # Log related
+  la = !git lh --date-order --all 2> /dev/null
+  lb = log --graph --simplify-by-decoration
+  lba = !git lb --all
+  h  = !git --no-pager log --graph -n 15
+  a  = !git --no-pager la -n 15
+
+  # Show history
+  history = log --pretty=format:\"%h %ad | %s%d [%an]\" --graph --date=short
+
+  # Show conflicts
+  conflicts = !git ls-files --unmerged | cut -f2 | sort -u | xargs  grep -El '<<<<<<<|=======|>>>>>>>'
+
+  # Show unmergd files
+  unmerged = files !git ls-files --unmerged | cut -f2 | sort -u
+
+  # Show aliases
+  aliases = !git config -l | grep alias | cut -c 7-
+
+  # Pull from remote repository
+  fork = !git config --get remote.origin.url | xargs git pull
+  please = push --force-with-lease
+  commend = commit --amend --no-edit
+  grog = log --graph --abbrev-commit --decorate --all --format=format:\"%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(dim white) - %an%C(reset) %C(bold green)(%ar)%C(reset)%C(bold yellow)%d%C(reset)%n %C(white)%s%C(reset)\"
+
+  # Branches
+  nuke = !sh -c 'git branch -D $1 && git push origin :$1' -
+  deltag = !sh -c 'git tag -d $1 && git push origin :refs/tags/$1' -
+
+[color]
+  ui = true
+[web]
+  browser = google-chrome
+[url "git@gitlab.qarea.org:tgms/"]
+  insteadOf = https://gitlab.qarea.org/tgms/
+[url "git@gitlab.qarea.org:tgms/testdb"]
+  insteadOf = https://gitlab.qarea.org/tgms/testdb
+[url "git@bitbucket.org:healum-qarea/"]
+  insteadOf = https://bitbucket.org/healum-qarea/
+[url "git@github.com:"]
+  insteadOf = gh:

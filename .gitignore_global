@@ -1,0 +1,9 @@
+.tags
+tags
+.env
+*.coverprofile
+*.orig
+.lock
+codex.tags
+dist
+vscale
