@@ -150,6 +150,7 @@ setlocal cpoptions+=M
 
 set clipboard+=unnamedplus
 " set paste
+set t_Co=256 
 
 filetype on
 filetype plugin on
@@ -160,7 +161,7 @@ colorscheme NeoSolarized
 
 highlight Comment cterm=italic
 
-set colorcolumn=80
+set colorcolumn=100
 autocmd FileType gitcommit set colorcolumn=72
 
 let mapleader = "\<space>"
