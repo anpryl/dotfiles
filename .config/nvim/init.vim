@@ -32,7 +32,6 @@ Plug 'icymind/NeoSolarized'
 Plug 'vim-airline/vim-airline'
 Plug 'vim-airline/vim-airline-themes'
 Plug 'mbbill/undotree'
-Plug 'christoomey/vim-tmux-navigator'
 Plug 'tpope/vim-obsession'
 Plug 'dhruvasagar/vim-prosession'
 Plug 'vim-scripts/BufOnly.vim'
@@ -65,15 +64,15 @@ Plug 'benmills/vimux'
 Plug 'benmills/vimux-golang'
 Plug 'nsf/gocode', {'rtp': 'vim/'}
 
-Plug 'neovimhaskell/haskell-vim'
-Plug 'alx741/vim-hindent'
-Plug 'eagletmt/neco-ghc'
-Plug 'eagletmt/ghcmod-vim'
-Plug 'mpickering/hlint-refactor-vim'
-Plug 'ndmitchell/ghcid', { 'rtp': 'plugins/nvim' }
-Plug 'feuerbach/vim-hs-module-name'
-Plug 'Twinside/vim-hoogle'
-Plug 'timmytofu/vim-cabal-context'
+" Plug 'neovimhaskell/haskell-vim'
+" Plug 'alx741/vim-hindent'
+" Plug 'eagletmt/neco-ghc'
+" Plug 'eagletmt/ghcmod-vim'
+" Plug 'mpickering/hlint-refactor-vim'
+" Plug 'ndmitchell/ghcid', { 'rtp': 'plugins/nvim' }
+" Plug 'feuerbach/vim-hs-module-name'
+" Plug 'Twinside/vim-hoogle'
+" Plug 'timmytofu/vim-cabal-context'
 
 " Plug 'jaspervdj/stylish-haskell'
 
@@ -214,8 +213,6 @@ vnoremap gj j
 vnoremap k gk
 vnoremap gk k
 
-inoremap jk <esc>
-
 noremap <Leader>n nzz
 noremap <Leader>N Nzz
 
@@ -248,6 +245,11 @@ nnoremap <silent> <Up> :exe "resize " . (winheight(0) * 21/20)<CR>
 nnoremap <silent> <Down> :exe "resize " . (winheight(0) * 20/21)<CR>
 nnoremap <silent> <Right> :exe "vertical resize " . (winwidth(0) * 21/20)<CR>
 nnoremap <silent> <Left> :exe "vertical resize " . (winwidth(0) * 20/21)<CR>
+
+nnoremap <C-J> <C-W><C-J>
+nnoremap <C-K> <C-W><C-K>
+nnoremap <C-L> <C-W><C-L>
+nnoremap <C-H> <C-W><C-H>
 
 inoremap <Up> <nop>
 vnoremap <Up> <nop>
@@ -346,7 +348,7 @@ let g:NERDCommentEmptyLines = 1
 
 let vim_markdown_preview_github=1
 
-set tags=tags,./tags
+set tags=.tags,./.tags
 set cpoptions+=d
 let g:easytags_async = 0
 let g:easytags_autorecurse = 0
@@ -379,7 +381,7 @@ let g:ctrlp_working_path_mode = 'ra'
 let g:ctrlp_show_hidden = '1'
 let g:ctrlp_custom_ignore = {
             \ 'dir':  '\v[\/]\.(git|hg|svn|stack-work)$',
-            \ 'file': '\v\.(exe|so|dll|tags)$',
+            \ 'file': '\v\.(exe|so|dll|tags|.tags)$',
             \ }
 
 let g:airline#extensions#tabline#enabled = 1

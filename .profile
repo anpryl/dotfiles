@@ -18,11 +18,3 @@ fi
 
 # set PATH so it includes user's private bin directories
 PATH="$HOME/bin:$HOME/.local/bin:$PATH"
-
-export PATH="$HOME/.cargo/bin:$PATH"
-
-gsettings set org.gnome.desktop.default-applications.terminal exec 'st -t "Suckless Terminal" -g "256x256"'
-# gsettings reset org.gnome.shell enabled-extensions
-gsettings set org.gnome.shell enabled-extensions ['clipboard-indicator@tudmotu.com', 'native-window-placement@gnome-shell-extensions.gcampax.github.com', 'nohotcorner@azuri.free.fr', 'pixel-saver@deadalnix.me', 'pomodoro@arun.codito.in', 'drive-menu@gnome-shell-extensions.gcampax.github.com', 'suspend-button@laserb', 'TopIcons@phocean.net', 'multi-monitors-add-on@spin83']
-
-if [ -e /home/anpryl/.nix-profile/etc/profile.d/nix.sh ]; then . /home/anpryl/.nix-profile/etc/profile.d/nix.sh; fi # added by Nix installer
