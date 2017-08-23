@@ -42,7 +42,7 @@
 :set -Wall
 :set -Wincomplete-uni-patterns
 :set -Wincomplete-record-updates
-:set -Wmissing-import-lists
+-- :set -Wmissing-import-lists
 
 :def pretty \_ -> return ("import Text.Show.Pretty (pPrint, ppShow)\n:set -interactive-print pPrint")
 :def no-pretty \_ -> return (":set -interactive-print System.IO.print")

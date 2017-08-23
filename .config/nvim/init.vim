@@ -21,7 +21,6 @@ Plug 'godlygeek/tabular'
 Plug 'Shougo/neosnippet'
 Plug 'scrooloose/nerdcommenter'
 Plug 'jeetsukumaran/vim-buffergator'
-Plug 'ctrlpvim/ctrlp.vim'
 Plug 'ryanoasis/vim-devicons'
 Plug 'plasticboy/vim-markdown'
 Plug 'vim-scripts/Align'
@@ -58,6 +57,11 @@ Plug 'mhinz/vim-grepper'
 Plug 'maxbrunsfeld/vim-yankstack'
 Plug 'bronson/vim-visual-star-search'
 Plug 'LnL7/vim-nix'
+
+Plug 'junegunn/fzf', { 'dir': '~/.config/fzf-vim', 'do': './install --bin' }
+Plug 'junegunn/fzf.vim'
+
+" Plug 'ctrlpvim/ctrlp.vim'
 
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 Plug 'zchee/deoplete-go', { 'do': 'make' }
@@ -189,11 +193,11 @@ nnoremap S :Neomake<CR>
 tnoremap <Esc> <C-\><C-n>
 nnoremap <leader><Esc> :HardTimeToggle<CR>
 
-nnoremap <A-e> :CtrlPBuffer<CR>
+nnoremap <A-e> :FzfBuffers<CR>
+nnoremap <A-r> :FzfLines<CR>
+nnoremap <C-p> :FzfFiles<CR>
 
 nnoremap <leader>l i<CR><ESC>
-
-nnoremap <leader>s /
 
 nmap <leader>p <Plug>yankstack_substitute_older_paste
 nmap <leader>P <Plug>yankstack_substitute_newer_paste
@@ -370,17 +374,19 @@ imap <C-@> <Plug>(neosnippet_expand_or_jump)
 smap <C-@> <Plug>(neosnippet_expand_or_jump)
 xmap <C-@> <Plug>(neosnippet_expand_target)
 
+let g:fzf_command_prefix = 'Fzf'
+
 let g:neosnippet#disable_runtime_snippets = {'_' : 1}
 let g:neosnippet#enable_snipmate_compatibility = 1
 let g:neosnippet#snippets_directory='~/.config/nvim/snippets'
 
-let g:ctrlp_cmd = 'CtrlPMixed'
-let g:ctrlp_working_path_mode = 'ra'
-let g:ctrlp_show_hidden = '1'
-let g:ctrlp_custom_ignore = {
-            \ 'dir':  '\v[\/]\.(git|hg|svn|stack-work)$',
-            \ 'file': '\v\.(exe|so|dll|tags)$',
-            \ }
+" let g:ctrlp_cmd = 'CtrlPMixed'
+" let g:ctrlp_working_path_mode = 'ra'
+" let g:ctrlp_show_hidden = '1'
+" let g:ctrlp_custom_ignore = {
+            " \ 'dir':  '\v[\/]\.(git|hg|svn|stack-work)$',
+            " \ 'file': '\v\.(exe|so|dll|tags)$',
+            " \ }
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1

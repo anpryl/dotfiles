@@ -25,7 +25,7 @@ alias vssh="nvim ~/.ssh/config"
 alias dus="du -hs * | sort -hr"
 alias dff='df -h'
 alias duu='du -h --max-depth=1 | sort -h'
-alias weather='curl wttr.in'
+alias weather='http wttr.in'
 alias a='sudo apt install'
 alias au='sudo apt update && sudo apt upgrade'
 alias ar='sudo apt autoremove'
@@ -54,7 +54,7 @@ export ZSH=/home/anpryl/.oh-my-zsh
 
 ZSH_THEME="agnoster"
 
-plugins=(zsh-completions commmon-aliases git cabal docker httpie jsontools systemd tmux vagrant vi-mode autoenv colorize colored-man-pages go stack)
+plugins=(zsh-completions commmon-aliases git cabal docker httpie jsontools systemd tmux vagrant vi-mode autoenv colorize colored-man-pages go stack git-open)
 
 autoload -U compinit && compinit
 
@@ -64,9 +64,12 @@ export LANG=en_US.UTF-8
 
 export ZSH_TMUX_AUTOSTART=true
 
+# export ZLE_PROMPT_INDENT=1
+
 setopt autocd
 setopt extended_glob
 setopt extended_history
+#setopt share_history
 setopt inc_append_history
 setopt hist_ignore_all_dups
 setopt hist_ignore_space
@@ -88,3 +91,8 @@ _comp_options+=(globdots)
 autoload -U compinit && compinit
 
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+# cowsay -f tux $(fortune)
+export PATH="/home/anpryl/.linuxbrew/bin:$PATH"
+export MANPATH="/home/anpryl/.linuxbrew/share/man:$MANPATH"
+export INFOPATH="/home/anpryl/.linuxbrew/share/info:$INFOPATH"
