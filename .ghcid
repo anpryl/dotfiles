@@ -22,9 +22,8 @@
 :set -freverse-errors
 :set -isrc
 
-:set -Wall
-:set -Wincomplete-uni-patterns
-:set -Wincomplete-record-updates
-:set -Wmissing-import-lists
+:set -fwarn-incomplete-uni-patterns
+:set -fwarn-incomplete-record-updates
+:set -fwarn-missing-import-lists
 
 :load Ghcid src\Paths.hs Test
