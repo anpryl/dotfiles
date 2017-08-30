@@ -57,11 +57,8 @@ Plug 'mhinz/vim-grepper'
 Plug 'maxbrunsfeld/vim-yankstack'
 Plug 'bronson/vim-visual-star-search'
 Plug 'LnL7/vim-nix'
-
 Plug 'junegunn/fzf', { 'dir': '~/.config/fzf-vim', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
-
-" Plug 'ctrlpvim/ctrlp.vim'
 
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 Plug 'zchee/deoplete-go', { 'do': 'make' }
@@ -69,21 +66,22 @@ Plug 'benmills/vimux'
 Plug 'benmills/vimux-golang'
 Plug 'nsf/gocode', {'rtp': 'vim/'}
 
-Plug 'neovimhaskell/haskell-vim'
-Plug 'alx741/vim-hindent'
-Plug 'eagletmt/neco-ghc'
-Plug 'eagletmt/ghcmod-vim'
-Plug 'mpickering/hlint-refactor-vim'
-Plug 'ndmitchell/ghcid', { 'rtp': 'plugins/nvim' }
 Plug 'feuerbach/vim-hs-module-name'
-Plug 'Twinside/vim-hoogle'
-Plug 'timmytofu/vim-cabal-context'
+" Plug 'neovimhaskell/haskell-vim'
+" Plug 'alx741/vim-hindent'
+" Plug 'eagletmt/neco-ghc'
+" Plug 'eagletmt/ghcmod-vim'
+" Plug 'mpickering/hlint-refactor-vim'
+" Plug 'ndmitchell/ghcid', { 'rtp': 'plugins/nvim' }
+" Plug 'Twinside/vim-hoogle'
+" Plug 'timmytofu/vim-cabal-context'
 
 " Plug 'jaspervdj/stylish-haskell'
-
 " Plug 'nbouscal/vim-stylish-haskell'
 " Plug 'parsonsmatt/intero-neovim'
 " Plug 'myfreeweb/intero.nvim'
+
+" Check for britanny haskell formatter and importify
 
 Plug 'johngrib/vim-game-code-break'
 
@@ -311,9 +309,9 @@ command! Dellead %le
 "Reduce multiple blank lines in a row into singular ones
 command! Onelines :10,20g/^/ mo 10
 
-" nnoremap <F5> :Deltrail<CR>
-" nnoremap <F6> :Dellead<CR>
-" nnoremap <F7> :Onelines<CR>
+nnoremap <F5> :Deltrail<CR>
+nnoremap <F6> :Dellead<CR>
+nnoremap <F7> :Onelines<CR>
 
 let g:yankstack_map_keys = 0
 
@@ -379,14 +377,6 @@ let g:fzf_command_prefix = 'Fzf'
 let g:neosnippet#disable_runtime_snippets = {'_' : 1}
 let g:neosnippet#enable_snipmate_compatibility = 1
 let g:neosnippet#snippets_directory='~/.config/nvim/snippets'
-
-" let g:ctrlp_cmd = 'CtrlPMixed'
-" let g:ctrlp_working_path_mode = 'ra'
-" let g:ctrlp_show_hidden = '1'
-" let g:ctrlp_custom_ignore = {
-            " \ 'dir':  '\v[\/]\.(git|hg|svn|stack-work)$',
-            " \ 'file': '\v\.(exe|so|dll|tags)$',
-            " \ }
 
 let g:airline#extensions#tabline#enabled = 1
 let g:airline_powerline_fonts = 1
