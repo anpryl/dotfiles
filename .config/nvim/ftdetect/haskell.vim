@@ -27,7 +27,7 @@ let g:neomake_haskell_enabled_makers = ['hlint','ghcmod']
 
 let g:hoogle_search_count = 20
 
-set tags+=/,codex.tags;/
+" set tags+=/,codex.tags;/
 
 autocmd BufWritePost *.hs Neomake hlint
 

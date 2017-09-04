@@ -1,16 +1,16 @@
 :set prompt  "\ESC[34m\STX\x03BB: \ESC[m\STX"
 :set +s
 :set +t
-:m + Control.Applicative
-:m + Control.Arrow
-:m + Control.Monad
-:m + Data.Bits
-:m + Data.Function
-:m + Data.List
-:m + Data.Maybe
-:m + Data.Monoid
-:m + Data.Word
-:m + Text.Printf
+-- :m + Control.Applicative
+-- :m + Control.Arrow
+-- :m + Control.Monad
+-- :m + Data.Bits
+-- :m + Data.Function
+-- :m + Data.List
+-- :m + Data.Maybe
+-- :m + Data.Monoid
+-- :m + Data.Word
+-- :m + Text.Printf
 
 :set -XOverloadedStrings
 :set -XRankNTypes
@@ -37,7 +37,7 @@
 :set -fwarn-monomorphism-restriction
 :set -fwarn-unused-matches
 :set -fwarn-name-shadowing
-:set -freverse-errors
+-- :set -freverse-errors
 
 :set -fwarn-incomplete-uni-patterns
 :set -fwarn-incomplete-record-updates
