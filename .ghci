@@ -23,7 +23,6 @@
 :set -fwarn-dodgy-foreign-imports
 :set -fwarn-dodgy-imports
 :set -fwarn-duplicate-exports
-:set -fwarn-duplicate-constraints
 :set -fwarn-empty-enumerations
 :set -fwarn-hi-shadowing
 :set -fwarn-incomplete-patterns
@@ -34,7 +33,7 @@
 :set -fwarn-missing-exported-signatures
 :set -fwarn-missing-signatures 
 :set -fwarn-missing-methods
-:set -fwarn-missing-local-signatures
+-- :set -fwarn-missing-local-signatures
 :set -fwarn-missing-import-lists
 :set -fwarn-missing-monadfail-instances 
 :set -fwarn-overlapping-patterns
@@ -54,7 +53,7 @@
 :set -fwarn-unsupported-llvm-version
 :set -fwarn-warnings-deprecations
 :set -fwarn-wrong-do-bind
-:set -fwarn-monomorphism-restriction
+-- :set -fwarn-monomorphism-restriction
 :set -fwarn-unticked-promoted-constructors
 :set -fwarn-name-shadowing
 :set -fwarn-noncanonical-monoid-instances
