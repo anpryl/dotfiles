@@ -59,6 +59,12 @@ Plug 'bronson/vim-visual-star-search'
 Plug 'LnL7/vim-nix'
 Plug 'junegunn/fzf', { 'dir': '~/.config/fzf-vim', 'do': './install --bin' }
 Plug 'junegunn/fzf.vim'
+Plug 'sbdchd/neoformat'
+Plug 'qpkorr/vim-bufkill'
+Plug 'sbdchd/vim-shebang'
+
+Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
+Plug 'Shougo/echodoc.vim'
 
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 Plug 'zchee/deoplete-go', { 'do': 'make' }
@@ -67,27 +73,20 @@ Plug 'benmills/vimux-golang'
 Plug 'nsf/gocode', {'rtp': 'vim/'}
 
 Plug 'feuerbach/vim-hs-module-name'
-" Plug 'neovimhaskell/haskell-vim'
-" Plug 'alx741/vim-hindent'
-" Plug 'eagletmt/neco-ghc'
-" Plug 'eagletmt/ghcmod-vim'
-" Plug 'mpickering/hlint-refactor-vim'
-" Plug 'ndmitchell/ghcid', { 'rtp': 'plugins/nvim' }
-" Plug 'Twinside/vim-hoogle'
-" Plug 'timmytofu/vim-cabal-context'
-
-" Plug 'jaspervdj/stylish-haskell'
-" Plug 'nbouscal/vim-stylish-haskell'
-" Plug 'parsonsmatt/intero-neovim'
-" Plug 'myfreeweb/intero.nvim'
-
-" Check for britanny haskell formatter and importify
+Plug 'neovimhaskell/haskell-vim'
+Plug 'nbouscal/vim-stylish-haskell'
 
 Plug 'johngrib/vim-game-code-break'
 
 call plug#end()
 call deoplete#enable()
 call yankstack#setup()
+
+let g:LanguageClient_autoStart=0
+let g:LanguageClient_diagnosticsEnable=0
+let g:LanguageClient_serverCommands = {
+    \ 'haskell': ['hie', '--lsp'],
+    \ }
 
 set history=10000
 set viewdir=~/.cache/nvim/view
@@ -163,7 +162,7 @@ colorscheme NeoSolarized
 
 highlight Comment cterm=italic
 
-set colorcolumn=80
+set colorcolumn=100
 autocmd FileType gitcommit set colorcolumn=72
 
 let mapleader = "\<space>"
@@ -215,8 +214,6 @@ vnoremap j gj
 vnoremap gj j
 vnoremap k gk
 vnoremap gk k
-
-inoremap jk <esc>
 
 noremap <Leader>n nzz
 noremap <Leader>N Nzz
@@ -392,18 +389,18 @@ let g:VimuxHeight="30"
 
 let g:buffergator_suppress_keymaps=1
 
-let g:tmux_navigator_save_on_switch = 2
+let g:tmux_navigator_save_on_switch=2
 
-let g:omni_sql_no_default_maps = 1
+let g:omni_sql_no_default_maps=1
 
-let g:XkbSwitchEnabled = 1
+let g:XkbSwitchEnabled=1
 
-let g:vimfiler_as_default_explorer = 1
+let g:vimfiler_as_default_explorer=1
 
-let g:hs_module_no_mappings = 1
+let g:hs_module_no_mappings=1
 
-let g:clever_f_across_no_line = 1
-let g:clever_f_timeout_ms = 3000
+let g:clever_f_across_no_line=1
+let g:clever_f_timeout_ms=3000
 
 
 autocmd CompleteDone * pclose

@@ -96,3 +96,5 @@ autoload -U compinit && compinit
 export PATH="/home/anpryl/.linuxbrew/bin:$PATH"
 export MANPATH="/home/anpryl/.linuxbrew/share/man:$MANPATH"
 export INFOPATH="/home/anpryl/.linuxbrew/share/info:$INFOPATH"
+
+PROMPT="%{%f%b%k%}$(build_prompt)"$'\n'"$ "
