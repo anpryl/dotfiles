@@ -24,7 +24,7 @@ alias vssh="nvim ~/.ssh/config"
 alias dus="du -hs * | sort -hr"
 alias dff='df -h'
 alias duu='du -h --max-depth=1 | sort -h'
-alias weather='curl wttr.in'
+alias weather='http wttr.in'
 alias a='sudo apt install'
 alias au='sudo apt update && sudo apt upgrade'
 alias ar='sudo apt autoremove'
@@ -61,8 +61,10 @@ export LANG=en_US.UTF-8
 export ZSH_TMUX_AUTOSTART=true
 export ZSH_TMUX_AUTOCONNECT=true
 
+setopt autocd
 setopt extended_glob
 setopt extended_history
+#setopt share_history
 setopt inc_append_history
 setopt hist_ignore_all_dups
 setopt hist_ignore_space

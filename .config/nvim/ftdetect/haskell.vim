@@ -7,17 +7,16 @@ let g:haskell_enable_typeroles = 1        " to enable highlighting of type roles
 let g:haskell_enable_static_pointers = 1  " to enable highlighting of `static`
 let g:haskell_backpack = 1                " to enable highlighting of backpack keywords
 let g:haskell_indent_if = 3
-let g:haskell_indent_case = 5
+let g:haskell_indent_case = 2
+let g:haskell_indent_let = 4
 let g:haskell_indent_where = 2
+let g:haskell_indent_before_where = 0
+let g:haskell_indent_after_bare_where = 2
 let g:haskell_indent_in = 0
-let g:haskell_indent_disable = 0
+let g:haskell_indent_do = 3
+let g:haskell_indent_in = 1
+let g:haskell_indent_guard = 2
 let g:haskell_classic_highlighting = 1
-
-let g:hindent_on_save = 0
-let g:hindent_indent_size = 2
-let g:hindent_line_length = 80
-
-let g:necoghc_enable_detailed_browse = 1
 
 let g:haskell_tabular = 1
 
@@ -31,87 +30,11 @@ set tags+=/,.codex.tags;/
 
 autocmd BufWritePost *.hs Neomake hlint
 
-let g:haskellmode_completion_ghc = 1
-autocmd FileType haskell setlocal omnifunc=necoghc#omnifunc
-
-let g:neomake_haskell_ghcmod_args =
-            \ [ '--verbosity'
-            \ , 'silent'
-            \ , 'exec'
-            \ , '--'
-            \ , 'ghc-mod'
-            \ , '-g-Wall'
-            \ , '-g-Werr'
-            \ , '-g-fdefer-type-errors'
-            \ , '-g-fwarn-incomplete-patterns'
-            \ , '-g-fwarn-name-shadowing'
-            \ , '-g-fwarn-redundant-constraints'
-            \ , '-g-fwarn-unused-binds'
-            \ , '-g-fwarn-unused-imports'
-            \ , '-g-fwarn-alternative-layout-rule-transitional'
-            \ , '-g-fwarn-deprecated-flags'
-            \ , '-g-fwarn-deprecations'
-            \ , '-g-fwarn-dodgy-exports'
-            \ , '-g-fwarn-dodgy-foreign-imports'
-            \ , '-g-fwarn-dodgy-imports'
-            \ , '-g-fwarn-duplicate-exports'
-            \ , '-g-fwarn-hi-shadowing'
-            \ , '-g-fwarn-incomplete-patterns'
-            \ , '-g-fwarn-incomplete-record-updates'
-            \ , '-g-fwarn-missing-fields'
-            \ , '-g-fwarn-missing-methods'
-            \ , '-g-fwarn-monomorphism-restriction'
-            \ , '-g-fwarn-name-shadowing'
-            \ , '-g-fwarn-overlapping-patterns'
-            \ , '-g-fwarn-tabs'
-            \ , '-g-fwarn-unrecognised-pragmas'
-            \ , '-g-fwarn-unused-binds'
-            \ , '-g-fwarn-unused-imports'
-            \ , '-g-fwarn-unused-matches'
-            \ , '-g-fwarn-warnings-deprecations'
-            \ , '-g-optP-include'
-            \ , 'check'
-            \ ]
-
 au FileType haskell vmap g=     :Tabularize /=<CR>
 au FileType haskell vmap g;     :Tabularize /::<CR>
 au FileType haskell vmap g.     :Tabularize /-><CR>
 au FileType haskell vmap g,     :Tabularize /<-<CR>
 au FileType haskell vmap g<bar> :Tabularize /<bar><CR>
-
-au FileType haskell nmap gi :GhcModTypeInsert<CR>
-au FileType haskell nmap gf :GhcModSplitFunCase<CR>
-au FileType haskell nmap gq :GhcModType<CR>
-au FileType haskell nmap gc :GhcModTypeClear<CR>
-au FileType haskell nmap gs :GhcModSigCodegen<CR>
-
-au FileType haskell nmap gh :Hindent<CR>
-au FileType haskell nmap gd :Ghcid<CR>
-au FileType haskell nmap gD :GhcidKill<CR>
-
-au FileType haskell nmap <leader>go :call ApplyOneSuggestion()<CR>
-au FileType haskell nmap <leader>ga :call ApplyAllSuggestions()<CR>
-
-" au FileType haskell nnoremap S :Ghcid<CR>
-
-au BufNewFile,BufRead *.hs map <buffer> <F7> :Hoogle 
-au BufNewFile,BufRead *.hs map <buffer> <C-F7> :HoogleClose<CR>
-au BufNewFile,BufRead *.hs map <buffer> <S-F7> :HoogleLine<CR>
-
-
-" au FileType haskell nnoremap <A-s> :InsertHaskellModuleName<CR>
-
-function! Pointfree()
-    call setline('.', split(system('pointfree '.shellescape(join(getline(a:firstline, a:lastline), "\n"))), "\n"))
-endfunction
-
-au FileType haskell vnoremap <silent> <leader>h' :call Pointfree()<CR>
-
-function! Pointful()
-    call setline('.', split(system('pointful '.shellescape(join(getline(a:firstline, a:lastline), "\n"))), "\n"))
-endfunction
-
-au FileType haskell vnoremap <silent> <leader>h" :call Pointful()<CR>
 
 let g:easytags_languages = {
             \   'haskell': {
@@ -119,6 +42,38 @@ let g:easytags_languages = {
             \     'fileoutput_opt': '-f',
             \   }
             \}
+
+" au FileType haskell nmap gi :GhcModTypeInsert<CR>
+" au FileType haskell nmap gf :GhcModSplitFunCase<CR>
+" au FileType haskell nmap gq :GhcModType<CR>
+" au FileType haskell nmap gc :GhcModTypeClear<CR>
+" au FileType haskell nmap gs :GhcModSigCodegen<CR>
+
+" au FileType haskell nmap gh :Hindent<CR>
+
+" au FileType haskell nmap <leader>go :call ApplyOneSuggestion()<CR>
+" au FileType haskell nmap <leader>ga :call ApplyAllSuggestions()<CR>
+
+" au FileType haskell nnoremap S :Ghcid<CR>
+
+" au BufNewFile,BufRead *.hs map <buffer> <F7> :Hoogle 
+" au BufNewFile,BufRead *.hs map <buffer> <C-F7> :HoogleClose<CR>
+" au BufNewFile,BufRead *.hs map <buffer> <S-F7> :HoogleLine<CR>
+
+
+" au FileType haskell nnoremap <A-s> :InsertHaskellModuleName<CR>
+
+" function! Pointfree()
+    " call setline('.', split(system('pointfree '.shellescape(join(getline(a:firstline, a:lastline), "\n"))), "\n"))
+" endfunction
+" 
+" au FileType haskell vnoremap <silent> <leader>h' :call Pointfree()<CR>
+" 
+" function! Pointful()
+    " call setline('.', split(system('pointful '.shellescape(join(getline(a:firstline, a:lastline), "\n"))), "\n"))
+" endfunction
+" 
+" au FileType haskell vnoremap <silent> <leader>h" :call Pointful()<CR>
 
 " let &l:statusline = '%{empty(getqflist()) ? "[No Errors]" : "[Errors Found]"}' . (empty(&l:statusline) ? &statusline : &l:statusline)
 
