@@ -4,7 +4,6 @@ import System.Taffybar.Systray
 import System.Taffybar.TaffyPager
 import System.Taffybar.SimpleClock
 import System.Taffybar.FreedesktopNotifications
-import System.Taffybar.Weather
 import System.Taffybar.MPRIS
 
 import System.Taffybar.Widgets.PollingBar

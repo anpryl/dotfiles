@@ -16,7 +16,6 @@ export GIT_MERGE_AUTOEDIT=no
 #PERL_MM_OPT="INSTALL_BASE=/home/anpryl/perl5"; export PERL_MM_OPT;
 
 alias rcfg="source ~/.zshrc"
-alias vim="nvim"
 alias vst="nvim ~/apps/st-0.7/config.h"
 alias vzsh="nvim ~/.zshrc"
 alias vgit="nvim ~/.gitconfig"
@@ -37,10 +36,9 @@ alias gopath='cd $GOPATH/src'
 alias edm='eval $(docker-machine env default)'
 alias rac='docker rm -fv $(docker ps -a -q)'
 alias reboot="sudo reboot"
+alias txa="tmux -2 attach || tmux -2 new"
 alias halt="sudo halt"
-
 alias mnix-env="nix-env -f https://github.com/NixOS/nixpkgs/archive/master.tar.gz"
-
 alias haskgen='hasktags -c -x -R . ; codex update'
 alias sbuild='stack build --fast --file-watch'
 
@@ -61,8 +59,8 @@ SAVEHIST=$HISTSIZE
 export LANG=en_US.UTF-8
 
 export ZSH_TMUX_AUTOSTART=true
+export ZSH_TMUX_AUTOCONNECT=true
 
-setopt autocd
 setopt extended_glob
 setopt extended_history
 setopt inc_append_history
@@ -77,7 +75,7 @@ setopt NO_BEEP
 setopt AUTO_CD
 setopt CORRECT_ALL
 setopt histexpiredupsfirst histfindnodups
-setopt histignoredups histnostore histverify histignorespace extended_history  share_history
+setopt histignoredups histnostore histverify histignorespace extended_history
 setopt notify globdots correct pushdtohome cdablevars autolist
 setopt correctall autocd recexact longlistjobs
 setopt autoresume histignoredups pushdsilent noclobber
@@ -124,6 +122,8 @@ autoload -U compinit && compinit
 zstyle :compinstall filename '/home/anpryl/.zshrc'
 
 export KEYTIMEOUT=1
+
+eval "$(direnv hook zsh)"
 
 mkcd(){ mkdir $1; cd $1 }
 
@@ -463,3 +463,7 @@ zle     -N   fzf-history-widget
 bindkey '^R' fzf-history-widget
 
 fi
+
+if [ "$TMUX" = "" ]; then txa; fi
+
+PROMPT="%{%f%b%k%}$(build_prompt)"$'\n'"$ "
