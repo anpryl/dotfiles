@@ -8,12 +8,27 @@ export PATH=$PATH:~/.cabal/bin
 export VISUAL=nvim
 export EDITOR=$VISUAL
 export GIT_MERGE_AUTOEDIT=no
+export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
+
+export LS_COLORS=""
+export LSCOLORS=""
 
 #PATH="/home/anpryl/perl5/bin${PATH:+:${PATH}}"; export PATH;
 #PERL5LIB="/home/anpryl/perl5/lib/perl5${PERL5LIB:+:${PERL5LIB}}"; export PERL5LIB;
 #PERL_LOCAL_LIB_ROOT="/home/anpryl/perl5${PERL_LOCAL_LIB_ROOT:+:${PERL_LOCAL_LIB_ROOT}}"; export PERL_LOCAL_LIB_ROOT;
 #PERL_MB_OPT="--install_base \"/home/anpryl/perl5\""; export PERL_MB_OPT;
 #PERL_MM_OPT="INSTALL_BASE=/home/anpryl/perl5"; export PERL_MM_OPT;
+
+alias ls='ls --color=always'
+alias dir='dir --color=always'
+alias vdir='vdir --color=always'
+# alias grep='grep --color=always'
+alias fgrep='fgrep --color=always'
+alias egrep='egrep --color=always'
+
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
 
 alias rcfg="source ~/.zshrc"
 alias vst="nvim ~/apps/st-0.7/config.h"
@@ -42,8 +57,6 @@ alias mnix-env="nix-env -f https://github.com/NixOS/nixpkgs/archive/master.tar.g
 alias haskgen='hasktags -c -x -R . ; codex update'
 alias sbuild='stack build --fast --file-watch'
 
-eval `dircolors /home/anpryl/.dir_colors/dircolors`
-
 stty -ixon
 
 set -o vi
@@ -61,7 +74,7 @@ export LANG=en_US.UTF-8
 export ZSH_TMUX_AUTOSTART=true
 export ZSH_TMUX_AUTOCONNECT=true
 
-setopt autocd
+# setopt autocd
 setopt extended_glob
 setopt extended_history
 #setopt share_history
@@ -86,25 +99,26 @@ unsetopt bgnice autoparamslash
 
 setopt  IGNORE_EOF
 typeset -U path cdpath fpath manpath
-autoload colors && colors
+# autoload colors && colors
 
-zstyle ':completion:*:manuals'    separate-sections true
-zstyle ':completion:*:manuals.*'  insert-sections   true
-zstyle ':completion:*:man:*'      menu yes select
-zstyle ':completion:*'            menu select=1 _complete _ignored _approximate
-zstyle ':completion:*::::' completer _expand _complete _ignored _approximate
-zstyle -e ':completion:*:approximate:*' max-errors 'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) numeric )'
-zstyle ':completion:*:expand:*' tag-order all-expansions
-zstyle ':completion:*' verbose yes
-zstyle ':completion:*:descriptions' format '%B%d%b'
-zstyle ':completion:*:messages' format '%d'
-zstyle ':completion:*:warnings' format 'No matches for: %d'
-zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
-zstyle ':completion:*' group-name ''
-zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
-zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
-zstyle ':completion:*:*:(^rm):*:*files' ignored-patterns '*?.o' '*?.c~''*?.old' '*?.pro'
-zstyle ':completion:*:functions' ignored-patterns '_*'
+zstyle ':completion:*:default' list-colors ${(s.:.)LS_COLORS}
+# zstyle ':completion:*:manuals'    separate-sections true
+# zstyle ':completion:*:manuals.*'  insert-sections   true
+# zstyle ':completion:*:man:*'      menu yes select
+# zstyle ':completion:*'            menu select=1 _complete _ignored _approximate
+# zstyle ':completion:*::::' completer _expand _complete _ignored _approximate
+# zstyle -e ':completion:*:approximate:*' max-errors 'reply=( $(( ($#PREFIX+$#SUFFIX)/3 )) numeric )'
+# zstyle ':completion:*:expand:*' tag-order all-expansions
+# zstyle ':completion:*' verbose yes
+# zstyle ':completion:*:descriptions' format '%B%d%b'
+# zstyle ':completion:*:messages' format '%d'
+# zstyle ':completion:*:warnings' format 'No matches for: %d'
+# zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
+# zstyle ':completion:*' group-name ''
+# zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
+# zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
+# zstyle ':completion:*:*:(^rm):*:*files' ignored-patterns '*?.o' '*?.c~''*?.old' '*?.pro'
+# zstyle ':completion:*:functions' ignored-patterns '_*'
 
 zstyle ':completion:*' menu yes select
 
@@ -465,6 +479,10 @@ zle     -N   fzf-history-widget
 bindkey '^R' fzf-history-widget
 
 fi
+
+source /home/anpryl/zsh-dircolors-solarized/zsh-dircolors-solarized.zsh
+
+setupsolarized dircolors.ansi-dark
 
 if [ "$TMUX" = "" ]; then txa; fi
 
