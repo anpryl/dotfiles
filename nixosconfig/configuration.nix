@@ -132,6 +132,7 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
         pasystray   # pulseaudio
         pavucontrol # pulseaudio
         python35Packages.youtube-dl
+        udiskie
         slock
         st'
         vifm
@@ -153,7 +154,7 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
     udisks2.enable         = true;
     nixosManual.showManual = true;
     openntpd.enable        = true;
-    urxvtd.enable          = true;
+    # urxvtd.enable          = true;
     openssh.enable         = true;
     journald.extraConfig   = "SystemMaxUse=50M";
   };
