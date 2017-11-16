@@ -71,8 +71,8 @@ SAVEHIST=$HISTSIZE
 
 export LANG=en_US.UTF-8
 
-export ZSH_TMUX_AUTOSTART=true
-export ZSH_TMUX_AUTOCONNECT=true
+# export ZSH_TMUX_AUTOSTART=true
+# export ZSH_TMUX_AUTOCONNECT=true
 
 # setopt autocd
 setopt extended_glob
