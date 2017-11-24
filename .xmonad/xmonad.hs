@@ -1,4 +1,5 @@
 import           Data.Default
+import           Data.List
 import           Data.Monoid
 import           System.Exit
 import           System.Taffybar.Hooks.PagerHints (pagerHints)
@@ -6,6 +7,7 @@ import           XMonad
 import           XMonad.Actions.PhysicalScreens
 import           XMonad.Actions.SpawnOn           (manageSpawn, spawnOn)
 import           XMonad.Actions.UpdatePointer     (updatePointer)
+
 import           XMonad.Hooks.EwmhDesktops        (ewmh, ewmhDesktopsLogHook)
 import           XMonad.Hooks.ManageDocks         (ToggleStruts (..),
                                                    avoidStruts, docks,
@@ -22,17 +24,14 @@ import           XMonad.Hooks.UrgencyHook         (NoUrgencyHook (..),
 import           XMonad.Layout.NoBorders          (smartBorders)
 import           XMonad.Prompt
 import           XMonad.Prompt.Shell
-import           XMonad.Util.Run                  (spawnPipe)
 import           XMonad.Util.SpawnOnce            (spawnOnce)
 
 import qualified Data.Map                         as M
 import qualified XMonad.StackSet                  as W
 
-
-
-
 main = do
     spawn "pkill taffybar ; taffybar"
+    spawn "feh --bg-max /home/anpryl/Dropbox/wallpapers/1443974-boring.png"
     xmonad config'
 
 config' = docks $ pagerHints $ ewmh $ uhook $ def
@@ -44,7 +43,7 @@ config' = docks $ pagerHints $ ewmh $ uhook $ def
     , keys = myKeys <> keys def
     , logHook = updatePointer (0.5, 0.5) (0, 0)
     , borderWidth = 2
-    , startupHook = startupHook def <+> startup'
+    , startupHook = startup' <+> startupHook def
     }
   where
     uhook = withUrgencyHookC NoUrgencyHook urgentConfig
@@ -53,28 +52,31 @@ config' = docks $ pagerHints $ ewmh $ uhook $ def
 terminal' = "st"
 
 startup' = do
-    {- spawnOn "IM" "skypeforlinux" -}
-    {- spawnOn "IM" "rambox" -}
-    {- spawnOn "Web" "google-chrome-stable" -}
-    {- spawnOn "Web" "firefox" -}
-    {- spawnOn "Term" terminal' -}
-    -- add steam and keepass google play music
-    -- feh --bg-center http://habrastorage.org/files/c1a/90a/763/c1a90a763acc48a083a325d42f86f8ad.jpg
-    return ()
-
-manageHook' = composeAll
-    [ isFullscreen          --> doFullFloat
-    , className =? "Vlc"    --> doCenterFloat
-    , transience'
-    , isDialog              --> doCenterFloat
-    , role      =? "pop-up" --> doCenterFloat
-    ]
-  where
-    role = stringProperty "WM_WINDOW_ROLE"
+    spawnOn "Web" "firefox"
+    spawnOn "Web" "google-chrome-stable"
+    spawnOn "Term" terminal'
+    spawnOn "IM" "skypeforlinux"
+    spawnOn "IM" "rambox"
+    spawnOn "Media" "google-play-music-desktop-player"
+    spawnOn "Keepass" "keepass"
+    spawnOn "Steam" "steam"
 
 workspaces' = wspaces ++ (map show $ drop (length wspaces) [1..9])
   where
     wspaces = ["Web", "Term", "IM", "Work", "Media", "Keepass", "Steam"]
+
+manageHook' = composeAll
+    [ isFullscreen           --> doFullFloat
+    , name      =? "KeePass" --> moveTo "Keepass"
+    , className =? "Vlc"     --> doCenterFloat
+    , transience'
+    , isDialog               --> doCenterFloat
+    , role      =? "pop-up"  --> doCenterFloat
+    ]
+  where
+    moveTo = doF . W.shift
+    role = stringProperty "WM_WINDOW_ROLE"
+    name = stringProperty "WM_NAME"
 
 layout' = tiled ||| Full
   where
