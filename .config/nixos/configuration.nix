@@ -13,7 +13,7 @@
   # ];
 
 time = {
-  # timeZone = "Europe/Kiev";
+  timeZone = "Europe/Kiev";
   hardwareClockInLocalTime = false;
 };
 
@@ -22,13 +22,13 @@ fileSystems."/".options = [ "noatime" "nodiratime" "discard" ];
 boot = {
   cleanTmpDir = true;
 
-  loader.timeout = 3;
+  loader.timeout = 1;
   loader.grub = {
+    enable = true;
     version = 2;
     efiSupport = true;
     efiInstallAsRemovable = true;
     device = "nodev";
-    gfxmodeEfi = "1024x768";
   };
 };
 
@@ -38,6 +38,10 @@ hardware = {
   pulseaudio = {
     enable = true;
     package = pkgs.pulseaudioFull;
+  };
+  opengl = {
+    driSupport = true;
+    driSupport32Bit = true;
   };
 };
 
@@ -82,59 +86,56 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
 
   environment.systemPackages = with pkgs; 
     let 
-      st' = pkgs.st.override { conf = builtins.readFile "/home/anpryl/nixosconfig/config.h"; }; 
+      st' = pkgs.st.override { 
+        conf = builtins.readFile "/home/anpryl/nixosconfig/st-config.h"; 
+        patches = [ ./st-no-bold.patch ];
+      }; 
       neovim' = pkgs.neovim.override { vimAlias = true; };
       dropbox' = tempDropboxPin.dropbox;
     in 
       [
-        SDL
-        SDL2
         ag
         arandr
-        bashInteractive
-        busybox
         ctags
         dfilemanager
         direnv
         dropbox'
         fzf
+        gcc
         gitAndTools.gitFull
         gnumake
+        go
         google-chrome
-	xorg.xhost
         haskellPackages.hasktags
         haskellPackages.steeloverseer
+        haskellPackages.stylish-haskell
         haskellPackages.taffybar
         haskellPackages.una
-        jq
         htop
+        httpie
         iotop
+        jq
         keepass
-        keepassx2
-        skype
-        pmutils
-        shared_mime_info
-        exfat-utils
-        fuse_exfat
-        firefox
-        unstable.viber
         libnotify
         mkpasswd
         neovim'
-        rambox
-        go
-        nethogs
-        httpie
         networkmanager
         networkmanagerapplet
         ntfs3g
         paprefs     # pulseaudio
         pasystray   # pulseaudio
         pavucontrol # pulseaudio
+        python3
         python35Packages.youtube-dl
-        udiskie
+        rambox
+        skype
         slock
         st'
+        udiskie
+        unstable.firefox
+        unstable.steam
+	google-play-music-desktop-player
+        unstable.viber
         vifm
         wget
         xclip
@@ -142,7 +143,7 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
         zsh
       ];
 
-  environment.variables = { GOROOT = [ "${pkgs.go.out}/share/go" ]; };
+  environment.variables = with pkgs; lib.mkAfter { GOROOT = [ "${pkgs.go.out}/share/go" ]; };
 
   networking.networkmanager.enable = true;
   networking.firewall.enable = false;
@@ -154,7 +155,6 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
     udisks2.enable         = true;
     nixosManual.showManual = true;
     openntpd.enable        = true;
-    # urxvtd.enable          = true;
     openssh.enable         = true;
     journald.extraConfig   = "SystemMaxUse=50M";
   };
@@ -174,7 +174,6 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
         ${xlibs.setxkbmap}/bin/setxkbmap -option ctrl:nocaps &
         ${xlibs.setxkbmap}/bin/setxkbmap -option grp:alt_space_toggle &
         ${xlibs.setxkbmap}/bin/setxkbmap -option terminate:ctrl_alt_bksp &
-        ${xlibs.xrdb}/bin/xrdb -merge ${config.users.extraUsers.anpryl.home}/.Xresources 
         ${xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr &
         ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &
         ${networkmanagerapplet}/bin/nm-applet &
@@ -251,17 +250,22 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
     autoPrune.enable = true;
   };
 
+  i18n = {
+    consoleFont   = "SauceCodePro";
+    defaultLocale = "en_US.UTF-8";
+  };
+
   fonts = {
     enableFontDir = true;
     enableGhostscriptFonts = true;
     enableDefaultFonts = true;
     fontconfig = {
       enable = true;
-      # defaultFonts = {
-        # monospace = ["SauceCodePro"];
-        # serif = ["Roboto"];
-        # sansSerif = ["Open sans"];
-      # };
+      defaultFonts = {
+        monospace = ["SauceCodePro"];
+        serif = ["Roboto"];
+        sansSerif = ["Open sans"];
+      };
     };
     fonts = [
       pkgs.corefonts

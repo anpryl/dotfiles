@@ -56,8 +56,8 @@ Plug 'mhinz/vim-grepper'
 Plug 'maxbrunsfeld/vim-yankstack'
 Plug 'bronson/vim-visual-star-search'
 Plug 'LnL7/vim-nix'
-" Plug 'junegunn/fzf', { 'dir': '~/.config/fzf-vim', 'do': './install --bin' }
-Plug 'junegunn/fzf', { 'dir': '~/.config/fzf-vim' }
+" Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+Plug 'junegunn/fzf'
 Plug 'junegunn/fzf.vim'
 Plug 'sbdchd/neoformat'
 Plug 'qpkorr/vim-bufkill'
