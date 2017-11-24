@@ -1,16 +1,34 @@
-# Edit this configuration file to define what should be installed on
-# your system.  Help is available in the configuration.nix(5) man page
-# and in the NixOS manual (accessible by running ‘nixos-help’).
+# For basic install
+#
+# boot = {
+  # cleanTmpDir = true;
+# 
+  # loader.timeout = 1;
+  # loader.grub = {
+    # enable = true;
+    # version = 2;
+    # efiSupport = true;
+    # efiInstallAsRemovable = true;
+    # device = "nodev";
+  # };
+# };
+# boot.initrd.availableKernelModules = [ "hid-logitech-hidpp" ];
+  # boot.initrd.luks.devices = [
+    # {
+      # name = "root";
+      # device = "/dev/disk/by-uuid/ecfe150a-a74f-4533-9ede-bc69c7e7f7be";
+      # preLVM = true;
+      # allowDiscards = true; 
+    # }
+  # ];
+# 
+# environment.systemPackages = with pkgs; [
+  # wget vim udiskie yadm git
+# ];
 
 { config, pkgs, ... }:
 
 {
-
-  # imports =
-  # [ # Include the results of the hardware scan.
-  # ./hardware-configuration.nix
-  # /home/anpryl/nixosconfig/configuration.nix
-  # ];
 
 time = {
   timeZone = "Europe/Kiev";
@@ -21,6 +39,7 @@ fileSystems."/".options = [ "noatime" "nodiratime" "discard" ];
 
 boot = {
   cleanTmpDir = true;
+  initrd.availableKernelModules = [ "hid-logitech-hidpp" ];
 
   loader.timeout = 1;
   loader.grub = {
@@ -35,6 +54,7 @@ boot = {
 hardware = {
   cpu.intel.updateMicrocode = true;
   nvidiaOptimus.disable = false;
+  bluetooth.enable = true;
   pulseaudio = {
     enable = true;
     package = pkgs.pulseaudioFull;
@@ -45,11 +65,9 @@ hardware = {
   };
 };
 
-# powerManagement.powertop.enable = true;
-
 security.sudo.wheelNeedsPassword = false;
 
-networking.hostName = "anpryl-desktop"; # Define your hostname.
+networking.hostName = "anpryl"; # Define your hostname.
 
   # Add unstable channel
   # sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixos-unstable
@@ -84,17 +102,20 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
   };
 
 
-  environment.systemPackages = with pkgs; 
+  environment.systemPackages = with pkgs;
     let 
-      st' = pkgs.st.override { 
-        conf = builtins.readFile "/home/anpryl/nixosconfig/st-config.h"; 
+      stconfig = (import ./st-config.nix {});
+      st' = st.override { 
+        conf = stconfig.config; 
         patches = [ ./st-no-bold.patch ];
       }; 
-      neovim' = pkgs.neovim.override { vimAlias = true; };
+      neovim' = neovim.override { vimAlias = true; };
       dropbox' = tempDropboxPin.dropbox;
     in 
       [
         ag
+        bluez
+        bluez-tools
         arandr
         ctags
         dfilemanager
@@ -149,15 +170,19 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
   networking.firewall.enable = false;
 
   services = {
+    acpid.enable = true;
     printing.enable        = true;
     dbus.enable            = true;
     locate.enable          = true;
+    upower.enable          = true;
     udisks2.enable         = true;
     nixosManual.showManual = true;
     openntpd.enable        = true;
     openssh.enable         = true;
     journald.extraConfig   = "SystemMaxUse=50M";
   };
+
+  powerManagement.powertop.enable = true;
 
   services.xserver = {
     enable              = true;
@@ -175,9 +200,10 @@ networking.hostName = "anpryl-desktop"; # Define your hostname.
         ${xlibs.setxkbmap}/bin/setxkbmap -option grp:alt_space_toggle &
         ${xlibs.setxkbmap}/bin/setxkbmap -option terminate:ctrl_alt_bksp &
         ${xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr &
-        ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &
         ${networkmanagerapplet}/bin/nm-applet &
         ${pasystray}/bin/pasystray &
+        ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &
+        ${coreutils}/bin/sleep 30 && ${udiskie}/bin/udiskie &
       '';
       lightdm.enable      = false;
       slim = {

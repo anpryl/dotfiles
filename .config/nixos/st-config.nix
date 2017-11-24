@@ -1,3 +1,6 @@
+{ pkgs ? import <nixpkgs> {} }:
+{
+config = ''
 /* See LICENSE file for copyright and license details. */
 
 /*
@@ -465,4 +468,5 @@ static char ascii_printable[] =
 	" !\"#$%&'()*+,-./0123456789:;<=>?"
 	"@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_"
 	"`abcdefghijklmnopqrstuvwxyz{|}~";
-
+'';
+}
