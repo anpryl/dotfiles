@@ -188,10 +188,15 @@ networking.hostName = "anpryl"; # Define your hostname.
     autorun             = true;
     exportConfiguration = true;
     layout              = "us,ru";
-    videoDrivers        = [ "nvidia" ];
+    videoDrivers        = [ "nvidia" "intel" ];
     xkbOptions          = "ctrl:nocaps,grp:alt_space_toggle,terminate:ctrl_alt_bksp";
 
     desktopManager.xterm.enable = false;
+
+    xautolock = {
+      enable = true;
+      locker = "${pkgs.slock}/bin/slock";
+    };
 
     displayManager = {
       sessionCommands = with pkgs; lib.mkAfter ''
@@ -201,8 +206,8 @@ networking.hostName = "anpryl"; # Define your hostname.
         ${xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr &
         ${networkmanagerapplet}/bin/nm-applet &
         ${pasystray}/bin/pasystray &
+        ${coreutils}/bin/sleep 30 && ${udiskie}/bin/udiskie -taP &
         ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &
-        ${coreutils}/bin/sleep 30 && ${udiskie}/bin/udiskie &
       '';
       lightdm.enable      = false;
       slim = {
@@ -230,6 +235,7 @@ networking.hostName = "anpryl"; # Define your hostname.
 
   programs = {
     ssh.startAgent = true;
+    slock.enable = true;
     tmux = {
       enable = true;
       clock24 = true;
