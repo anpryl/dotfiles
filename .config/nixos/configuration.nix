@@ -72,7 +72,6 @@ networking.hostName = "anpryl"; # Define your hostname.
   # Add unstable channel
   # sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixos-unstable
   # sudo nix-channel --update
-  # sudo nix-channel --update nixos-unstable
   nixpkgs.config = with pkgs;
   let
       fetchNixPkgs = { rev, sha256 }:
