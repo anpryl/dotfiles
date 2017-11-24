@@ -53,7 +53,7 @@ terminal' = "st"
 
 startup' = do
     spawnOn "Web" "firefox"
-    spawnOn "Web" "google-chrome-stable"
+    {- spawnOn "Web" "google-chrome-stable" -}
     spawnOn "Term" terminal'
     spawnOn "IM" "skypeforlinux"
     spawnOn "IM" "rambox"
