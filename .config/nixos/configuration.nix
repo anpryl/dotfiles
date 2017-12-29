@@ -1,8 +1,6 @@
 # For basic install
 #
 # boot = {
-  # cleanTmpDir = true;
-# 
   # loader.timeout = 1;
   # loader.grub = {
     # enable = true;
@@ -26,8 +24,25 @@
   # wget vim udiskie yadm git
 # ];
 
-{ config, pkgs, ... }:
+# desktopManager.plasma5 = {
+  # enable = true;
+# };
 
+
+{ config, pkgs, ... }:
+let 
+  importNixPkgs = { rev, sha256 }:
+  import (fetchNixPkgs { inherit rev sha256; }) { 
+    config = config.nixpkgs.config; 
+  };
+
+  fetchNixPkgs = { rev, sha256 }:
+  pkgs.fetchFromGitHub {
+    inherit rev sha256;
+    owner = "NixOS";
+    repo = "nixpkgs-channels";
+  };
+in
 {
 
 time = {
@@ -40,6 +55,8 @@ fileSystems."/".options = [ "noatime" "nodiratime" "discard" ];
 boot = {
   cleanTmpDir = true;
   initrd.availableKernelModules = [ "hid-logitech-hidpp" ];
+
+  kernelModules = [ "hid-logitech-hidpp" "kvm-intel" "intel_pstate" ];
 
   loader.timeout = 1;
   loader.grub = {
@@ -62,7 +79,14 @@ hardware = {
   opengl = {
     driSupport = true;
     driSupport32Bit = true;
+    s3tcSupport = true;
   };
+};
+
+sound = {
+  enable = true;
+  mediaKeys.enable = true;
+  mediaKeys.volumeStep = "10%";
 };
 
 security.sudo.wheelNeedsPassword = false;
@@ -73,14 +97,6 @@ networking.hostName = "anpryl"; # Define your hostname.
   # sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixos-unstable
   # sudo nix-channel --update
   nixpkgs.config = with pkgs;
-  let
-      fetchNixPkgs = { rev, sha256 }:
-      fetchFromGitHub {
-        inherit sha256 rev;
-        owner = "NixOS";
-        repo = "nixpkgs-channels";
-      };
-  in
   {
     allowUnfree = true;
     packageOverrides = pkgs: {
@@ -89,37 +105,37 @@ networking.hostName = "anpryl"; # Define your hostname.
         # to ensure `allowUnfree = true;` is propagated:
         config = config.nixpkgs.config;
       };
-
-      # https://github.com/NixOS/nixpkgs/issues/31060
-      tempDropboxPin = import (fetchNixPkgs {
-        rev = "85f0eef69cb29572184c315f575120158b4fb617";
-        sha256 = "1f3ahjd7jzh0vpg5s2rfl9mbskl6q8yl1xslpgkb4w7f1nyd5snc";
-      }) {
-        config = config.nixpkgs.config;
-      };
     };
   };
 
 
   environment.systemPackages = with pkgs;
     let 
-      stconfig = (import ./st-config.nix {});
+      stcfg = (import ./st-config.nix {});
       st' = st.override { 
-        conf = stconfig.config; 
+        conf = stcfg.config; 
         patches = [ ./st-no-bold.patch ];
       }; 
       neovim' = neovim.override { vimAlias = true; };
-      dropbox' = tempDropboxPin.dropbox;
+      # https://github.com/NixOS/nixpkgs/issues/31060
+      dropbox' = (importNixPkgs {
+        rev = "85f0eef69cb29572184c315f575120158b4fb617";
+        sha256 = "1f3ahjd7jzh0vpg5s2rfl9mbskl6q8yl1xslpgkb4w7f1nyd5snc";
+      }).dropbox;
     in 
       [
+	google-play-music-desktop-player
+        # services.redshift
         ag
+        arandr
         bluez
         bluez-tools
-        arandr
+        cabal2nix
         ctags
         dfilemanager
         direnv
-        dropbox'
+        dropbox
+        ffmpeg
         fzf
         gcc
         gitAndTools.gitFull
@@ -131,31 +147,41 @@ networking.hostName = "anpryl"; # Define your hostname.
         haskellPackages.stylish-haskell
         haskellPackages.taffybar
         haskellPackages.una
+        mesa_noglu
         htop
         httpie
         iotop
         jq
         keepass
+        keepassx
+        imagemagick
         libnotify
         mkpasswd
+        mosh
+        qt5.qtwebkit
         neovim'
         networkmanager
+        xorg.xwininfo
         networkmanagerapplet
+        nix-repl
         ntfs3g
         paprefs     # pulseaudio
         pasystray   # pulseaudio
         pavucontrol # pulseaudio
+        # powertop
         python3
         python35Packages.youtube-dl
-        rambox
         skype
         slock
+        speedtest_cli
         st'
+        tldr
         udiskie
         unstable.firefox
+        unstable.rambox
         unstable.steam
-	google-play-music-desktop-player
         unstable.viber
+        unzip
         vifm
         wget
         xclip
@@ -163,7 +189,7 @@ networking.hostName = "anpryl"; # Define your hostname.
         zsh
       ];
 
-  environment.variables = with pkgs; lib.mkAfter { GOROOT = [ "${pkgs.go.out}/share/go" ]; };
+  environment.variables = with pkgs; lib.mkAfter { GOROOT = [ "${go.out}/share/go" ]; };
 
   networking.networkmanager.enable = true;
   networking.firewall.enable = false;
@@ -181,9 +207,9 @@ networking.hostName = "anpryl"; # Define your hostname.
     journald.extraConfig   = "SystemMaxUse=50M";
   };
 
-  powerManagement.powertop.enable = true;
+  # powerManagement.powertop.enable = true;
 
-  services.xserver = {
+  services.xserver = with pkgs; {
     enable              = true;
     autorun             = true;
     exportConfiguration = true;
@@ -191,15 +217,15 @@ networking.hostName = "anpryl"; # Define your hostname.
     videoDrivers        = [ "nvidia" "intel" ];
     xkbOptions          = "ctrl:nocaps,grp:alt_space_toggle,terminate:ctrl_alt_bksp";
 
-    desktopManager.xterm.enable = false;
-
     xautolock = {
       enable = true;
-      locker = "${pkgs.slock}/bin/slock";
+      locker = "slock";
+      time = 10;
     };
 
     displayManager = {
-      sessionCommands = with pkgs; lib.mkAfter ''
+        # check xkbOptions later
+      sessionCommands = lib.mkAfter ''
         ${xlibs.setxkbmap}/bin/setxkbmap -option ctrl:nocaps &
         ${xlibs.setxkbmap}/bin/setxkbmap -option grp:alt_space_toggle &
         ${xlibs.setxkbmap}/bin/setxkbmap -option terminate:ctrl_alt_bksp &
@@ -209,11 +235,10 @@ networking.hostName = "anpryl"; # Define your hostname.
         ${coreutils}/bin/sleep 30 && ${udiskie}/bin/udiskie -taP &
         ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &
       '';
-      lightdm.enable      = false;
       slim = {
         enable = true;
         defaultUser = "anpryl";
-        theme = pkgs.fetchurl {
+        theme = fetchurl {
           url = "https://github.com/Hinidu/nixos-solarized-slim-theme/archive/1.2.tar.gz";
           sha256 = "f8918f56e61d4b8f885a4dfbf1285aeac7d7e53a7458e32942a759fedfd95faf";
         };
@@ -275,10 +300,22 @@ networking.hostName = "anpryl"; # Define your hostname.
     };
   };
 
-  virtualisation.docker = {
-    enable = true;
-    enableOnBoot = true;
-    autoPrune.enable = true;
+  virtualisation = {
+    virtualbox = {
+      host = {
+        enable = true;
+        enableHardening = true;
+        headless = true;
+      };
+      # guest = {
+        # enable = true;
+      # };
+    };
+    docker = {
+      enable = true;
+      enableOnBoot = true;
+      autoPrune.enable = true;
+    };
   };
 
   i18n = {
@@ -292,6 +329,9 @@ networking.hostName = "anpryl"; # Define your hostname.
     enableDefaultFonts = true;
     fontconfig = {
       enable = true;
+      ultimate = {
+        enable = true;
+      };
       defaultFonts = {
         monospace = ["SauceCodePro"];
         serif = ["Roboto"];
@@ -318,7 +358,7 @@ networking.hostName = "anpryl"; # Define your hostname.
     createHome = true;
     shell = "${pkgs.zsh}/bin/zsh";
     # extraGroups = [ "wheel" "networkmanager" "audio" "adb" "video" "power" "vboxusers" "cdrom" ];
-    extraGroups = [ "wheel" "networkmanager" "audio" "docker" ];
+    extraGroups = [ "wheel" "networkmanager" "audio" "docker" "vboxusers" ];
     hashedPassword = "$6$su9cWrwt$.ypbFeRUsW1ec82FxvbP0vIqKGEUIKJU1K3aFxhTfuI96D/K7E0du0y6be8UOJ72ZvnPA1DYVLqClLgLKJD5x/";
   };
 
