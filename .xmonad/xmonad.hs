@@ -7,7 +7,6 @@ import           XMonad
 import           XMonad.Actions.PhysicalScreens
 import           XMonad.Actions.SpawnOn           (manageSpawn, spawnOn)
 import           XMonad.Actions.UpdatePointer     (updatePointer)
-
 import           XMonad.Hooks.EwmhDesktops        (ewmh, ewmhDesktopsLogHook)
 import           XMonad.Hooks.ManageDocks         (ToggleStruts (..),
                                                    avoidStruts, docks,
@@ -53,13 +52,17 @@ terminal' = "st"
 
 startup' = do
     spawnOn "Web" "firefox"
-    {- spawnOn "Web" "google-chrome-stable" -}
     spawnOn "Term" terminal'
     spawnOn "IM" "skypeforlinux"
     spawnOn "IM" "rambox"
     spawnOn "Media" "google-play-music-desktop-player"
-    spawnOn "Keepass" "keepass"
     spawnOn "Steam" "steam"
+
+    {- spawnOn "Web" "google-chrome-stable" -}
+    {- spawnOn "Keepass" "keepass" -}
+    {- https://github.com/keepassxreboot/keepassxc/pull/1230 -}
+    {- spawnOn "Keepass" "keepassx" -}
+
 
 workspaces' = wspaces ++ (map show $ drop (length wspaces) [1..9])
   where
@@ -95,7 +98,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask, xK_y), spawn "xmonad --restart")
     , ((modMask .|. shiftMask, xK_y), spawn "xmonad --recompile && xmonad --restart")
     , ((modMask, xK_p), shellPrompt promptCfg)
-    , ((modMask .|. shiftMask, xK_l     ), io (exitWith ExitSuccess))
+    , ((modMask .|. shiftMask, xK_l), io (exitWith ExitSuccess))
+    , ((noModMask, xK_Print), spawn "import -window root 'png:-' | xclip -selection clipboard -target image/png -i")
+    , ((modMask, xK_Print), spawn "import -window `xwininfo |grep 'Window id:' |cut -d\" \" -f4` 'png:-' | xclip -selection clipboard -target image/png -i")
+    , ((modMask .|. shiftMask, xK_Print), spawn "import 'png:-' | xclip -selection clipboard -target image/png -i")
     ]
     <>
     [((modMask .|. mask, key), f sc)
