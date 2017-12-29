@@ -138,6 +138,8 @@ set wildignore+=_live/**
 set wildignore+=*\\tmp\\*,*.swp,*.swo,*.zip,.git,.cabal-sandbox
 set wildignore+=*/tmp/*,*.so,*.swp,*.zip     " MacOSX/Linux
 
+set langmap=ёйцукенгшщзхъфывапролджэячсмитьбюЙЦУКЕHГШЩЗХЪФЫВАПРОЛДЖЭЯЧСМИТЬБЮ;`qwertyuiop[]asdfghjkl\\;'zxcvbnm\\,.QWERTYUIOP{}ASDFGHJKL:\\"ZXCVBNM<>
+
 set encoding=utf-8
 set laststatus=2
 scriptencoding utf-8
@@ -216,8 +218,8 @@ vnoremap gj j
 vnoremap k gk
 vnoremap gk k
 
-noremap <Leader>n nzz
-noremap <Leader>N Nzz
+noremap n nzz
+noremap N Nzz
 
 nnoremap <leader>j <C-w><bar><C-w>_
 nnoremap <leader>k <C-w>=
