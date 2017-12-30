@@ -108,6 +108,7 @@ networking.hostName = "anpryl"; # Define your hostname.
     };
   };
 
+  # services.redshift
 
   environment.systemPackages = with pkgs;
     let 
@@ -125,7 +126,7 @@ networking.hostName = "anpryl"; # Define your hostname.
     in 
       [
 	google-play-music-desktop-player
-        # services.redshift
+        # powertop
         ag
         arandr
         bluez
@@ -147,30 +148,28 @@ networking.hostName = "anpryl"; # Define your hostname.
         haskellPackages.stylish-haskell
         haskellPackages.taffybar
         haskellPackages.una
-        mesa_noglu
         htop
         httpie
+        imagemagick
         iotop
         jq
         keepass
         keepassx
-        imagemagick
         libnotify
+        mesa_noglu
         mkpasswd
         mosh
-        qt5.qtwebkit
         neovim'
         networkmanager
-        xorg.xwininfo
         networkmanagerapplet
         nix-repl
         ntfs3g
         paprefs     # pulseaudio
         pasystray   # pulseaudio
         pavucontrol # pulseaudio
-        # powertop
         python3
         python35Packages.youtube-dl
+        qt5.qtwebkit
         skype
         slock
         speedtest_cli
@@ -185,6 +184,7 @@ networking.hostName = "anpryl"; # Define your hostname.
         vifm
         wget
         xclip
+        xorg.xwininfo
         yadm
         zsh
       ];
@@ -233,7 +233,7 @@ networking.hostName = "anpryl"; # Define your hostname.
         ${networkmanagerapplet}/bin/nm-applet &
         ${pasystray}/bin/pasystray &
         ${coreutils}/bin/sleep 30 && ${udiskie}/bin/udiskie -taP &
-        ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &
+        ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &> /tmp/dropbox_err &
       '';
       slim = {
         enable = true;

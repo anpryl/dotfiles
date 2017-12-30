@@ -55,7 +55,7 @@ terminal' = "st"
 startup' = do
     spawnOn "Web" "firefox"
     spawnOn "Term" terminal'
-    spawnOn "IM" "skypeforlinux"
+    {- spawnOn "IM" "skypeforlinux" -}
     spawnOn "IM" "rambox"
     spawnOn "Media" "google-play-music-desktop-player"
     spawnOn "Steam" "steam"
