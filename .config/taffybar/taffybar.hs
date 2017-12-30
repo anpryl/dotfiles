@@ -24,6 +24,7 @@ import           System.Taffybar.Widgets.PollingLabel
 import           Text.Printf
 
 main = do
+  ctx <- batteryContextNew
   defaultTaffybar defaultTaffybarConfig
     { startWidgets = [ pager, note ]
     , endWidgets =
@@ -33,15 +34,18 @@ main = do
         , [volume]
         , [netDown, netDownText, netUp, netUpText]
         , [mem, memText, cpu, cpuText]
-        , [battery]
+        , batteries ctx
         {- , [memP, cpuP] -}
         ]
     }
   where
+    batteries (Just batteryContext) = [battery, batteryStatus batteryContext]
+    batteries Nothing               = [battery]
     clock = textClockNew Nothing ("<span fgcolor='" ++ solarizedBlue ++ "'>%a %b %_d %H:%M</span>") 1
     note = notifyAreaNew defaultNotificationConfig
     cpu = textCPUNew ("…" ++ colorize solarizedBase01 "" "%") "cpu" 1
     cpuText = textWidgetNew "CPU:"
+    batteryStatus batteryContext = pollingLabelNew "" 1 $ batteryStatusFunc batteryContext
     battery = textBatteryNew ("$percentage$" ++ colorize solarizedBase01 "" "%") 5
     mem = textMemNew 1
     memText = textWidgetNew "MEM:"
@@ -148,15 +152,15 @@ memPct = do
 
 -- Battery
 
-batteryIconFunc :: BatteryContext -> String -> IO String
-batteryIconFunc ctxt prefix = do
+batteryStatusFunc :: BatteryContext -> IO String
+batteryStatusFunc ctxt = do
   ac <- batteryAC ctxt
   percentage <- batteryPercent ctxt
   case () of
-    _ | ac == BatteryStateCharging -> return $ prefix ++ "ac_01.xpm"
-      | percentage < 0.1 -> return $ prefix ++ "bat_empty_02.xpm"
-      | percentage < 0.4 -> return $ prefix ++ "bat_low_02.xpm"
-      | otherwise -> return $ prefix ++ "bat_full_02.xpm"
+    _ | ac == BatteryStateCharging -> return $ "Charging:"
+      | otherwise -> return $ "Battery:"
+    {- | percentage < 0.4 -> return $ prefix ++ "Low" -}
+      {- | percentage < 0.1 -> return $ prefix ++ "Critical low" -}
 
 batteryPercent :: BatteryContext -> IO Double
 batteryPercent ctxt = do
