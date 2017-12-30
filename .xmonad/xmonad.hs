@@ -1,12 +1,14 @@
 import           Data.Default
 import           Data.List
 import           Data.Monoid
+import           Graphics.X11.ExtraTypes.XF86
 import           System.Exit
 import           System.Taffybar.Hooks.PagerHints (pagerHints)
 import           XMonad
 import           XMonad.Actions.PhysicalScreens
 import           XMonad.Actions.SpawnOn           (manageSpawn, spawnOn)
 import           XMonad.Actions.UpdatePointer     (updatePointer)
+import           XMonad.Actions.Volume
 import           XMonad.Hooks.EwmhDesktops        (ewmh, ewmhDesktopsLogHook)
 import           XMonad.Hooks.ManageDocks         (ToggleStruts (..),
                                                    avoidStruts, docks,
@@ -62,6 +64,7 @@ startup' = do
     {- spawnOn "Keepass" "keepass" -}
     {- https://github.com/keepassxreboot/keepassxc/pull/1230 -}
     {- spawnOn "Keepass" "keepassx" -}
+    pure ()
 
 
 workspaces' = wspaces ++ (map show $ drop (length wspaces) [1..9])
@@ -99,6 +102,9 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. shiftMask, xK_y), spawn "xmonad --recompile && xmonad --restart")
     , ((modMask, xK_p), shellPrompt promptCfg)
     , ((modMask .|. shiftMask, xK_l), io (exitWith ExitSuccess))
+    , ((noModMask, xF86XK_AudioLowerVolume), setMute True >> lowerVolume 5 >> pure ())
+    , ((noModMask, xF86XK_AudioRaiseVolume), setMute True >> raiseVolume 5 >> pure ())
+    , ((noModMask, xF86XK_AudioMute), toggleMute >> pure ())
     , ((noModMask, xK_Print), spawn "import -window root 'png:-' | xclip -selection clipboard -target image/png -i")
     , ((modMask, xK_Print), spawn "import -window `xwininfo |grep 'Window id:' |cut -d\" \" -f4` 'png:-' | xclip -selection clipboard -target image/png -i")
     , ((modMask .|. shiftMask, xK_Print), spawn "import 'png:-' | xclip -selection clipboard -target image/png -i")
@@ -112,10 +118,27 @@ promptCfg = def
     { position     = Bottom
     , height       = 50
     , font         = "xft:Roboto:size=16"
-    , bgColor      = "#002b36"
-    , bgHLight     = "#b58900"
-    , fgColor      = "#268bd2"
-    , fgHLight     = "#002b36"
+    , bgColor      = solarizedBase03
+    , bgHLight     = solarizedYellow
+    , fgColor      = solarizedBlue
+    , fgHLight     = solarizedBase03
     , promptBorderWidth = 2
-    , borderColor  = "#dc322f"
+    , borderColor  = solarizedYellow
     }
+
+solarizedBase03  = "#002b36"
+solarizedBase02  = "#073642"
+solarizedBase01  = "#586e75"
+solarizedBase00  = "#657b83"
+solarizedBase0   = "#839496"
+solarizedBase1   = "#93a1a1"
+solarizedBase2   = "#eee8d5"
+solarizedBase3   = "#fdf6e3"
+solarizedYellow  = "#b58900"
+solarizedOrange  = "#cb4b16"
+solarizedRed     = "#dc322f"
+solarizedMagenta = "#d33682"
+solarizedViolet  = "#6c71c4"
+solarizedBlue    = "#268bd2"
+solarizedCyan    = "#2aa198"
+solarizedGreen   = "#859900"
