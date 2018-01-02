@@ -48,18 +48,21 @@ config' = docks $ pagerHints $ ewmh $ uhook $ def
     }
   where
     uhook = withUrgencyHookC NoUrgencyHook urgentConfig
-    urgentConfig = UrgencyConfig { suppressWhen = Focused, remindWhen = Dont }
+    urgentConfig = UrgencyConfig
+      { suppressWhen = Focused
+      , remindWhen = Dont
+      }
 
 terminal' = "st"
 
 startup' = do
     spawnOn "Web" "firefox"
     spawnOn "Term" terminal'
-    {- spawnOn "IM" "skypeforlinux" -}
     spawnOn "IM" "rambox"
     spawnOn "Media" "google-play-music-desktop-player"
     spawnOn "Steam" "steam"
 
+    {- spawnOn "IM" "skypeforlinux" -}
     {- spawnOn "Web" "google-chrome-stable" -}
     {- spawnOn "Keepass" "keepass" -}
     {- https://github.com/keepassxreboot/keepassxc/pull/1230 -}
@@ -72,12 +75,13 @@ workspaces' = wspaces ++ (map show $ drop (length wspaces) [1..9])
     wspaces = ["Web", "Term", "IM", "Work", "Media", "Keepass", "Steam"]
 
 manageHook' = composeAll
-    [ isFullscreen           --> doFullFloat
-    , name      =? "KeePass" --> moveTo "Keepass"
-    , className =? "Vlc"     --> doCenterFloat
+    [ isFullscreen                               --> doFullFloat
+    , name      =? "KeePass"                     --> moveTo "Keepass"
+    , name      =? "KeePassX - Password Manager" --> moveTo "Keepass"
+    , className =? "Vlc"                         --> doCenterFloat
     , transience'
-    , isDialog               --> doCenterFloat
-    , role      =? "pop-up"  --> doCenterFloat
+    , isDialog                                   --> doCenterFloat
+    , role      =? "pop-up"                      --> doCenterFloat
     ]
   where
     moveTo = doF . W.shift
@@ -98,6 +102,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) = M.fromList $
     , ((modMask .|. shiftMask, xK_a), onPrevNeighbour W.shift)
     , ((modMask .|. shiftMask, xK_o), onNextNeighbour W.shift)
     , ((modMask, xK_c), kill)
+    , ((modMask, xK_l), spawn "slock")
     , ((modMask, xK_y), spawn "xmonad --restart")
     , ((modMask .|. shiftMask, xK_y), spawn "xmonad --recompile && xmonad --restart")
     , ((modMask, xK_p), shellPrompt promptCfg)
@@ -123,7 +128,7 @@ promptCfg = def
     , fgColor      = solarizedBlue
     , fgHLight     = solarizedBase03
     , promptBorderWidth = 2
-    , borderColor  = solarizedYellow
+    , borderColor  = solarizedRed
     }
 
 solarizedBase03  = "#002b36"
