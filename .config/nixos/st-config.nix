@@ -1,6 +1,21 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs }:
 {
-config = ''
+  noBoldPatch = ''
+diff --git a/st.c b/st.c
+index fbfd350..110f3cc 100644
+--- a/st.c
++++ b/st.c
+@@ -1158,7 +1158,7 @@ xdrawglyphfontspecs(const XftGlyphFontSpec *specs, Glyph base, int len, int x, i
+ 
+ 	/* Change basic system colors [0-7] to bright system colors [8-15] */
+ 	if ((base.mode & ATTR_BOLD_FAINT) == ATTR_BOLD && BETWEEN(base.fg, 0, 7))
+-		fg = &dc.col[base.fg + 8];
++		fg = &dc.col[base.fg];
+ 
+ 	if (IS_SET(MODE_REVERSE)) {
+ 		if (fg == &dc.col[defaultfg]) {
+'';
+  config = ''
 /* See LICENSE file for copyright and license details. */
 
 /*

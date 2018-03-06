@@ -28,112 +28,181 @@
   # enable = true;
 # };
 
-
-{ config, pkgs, ... }:
+{ lib, config, pkgs, ... }:
 let 
   importNixPkgs = { rev, sha256 }:
-  import (fetchNixPkgs { inherit rev sha256; }) { 
-    config = config.nixpkgs.config; 
-  };
-
+    import (fetchNixPkgs { inherit rev sha256; }) { 
+      config = config.nixpkgs.config; 
+    };
   fetchNixPkgs = { rev, sha256 }:
-  pkgs.fetchFromGitHub {
-    inherit rev sha256;
-    owner = "NixOS";
-    repo = "nixpkgs-channels";
-  };
+    pkgs.fetchFromGitHub {
+      inherit rev sha256;
+      owner = "NixOS";
+      repo  = "nixpkgs-channels";
+    };
 in
 {
 
 time = {
-  timeZone = "Europe/Kiev";
+  timeZone                 = "Europe/Kiev";
   hardwareClockInLocalTime = false;
 };
 
-fileSystems."/".options = [ "noatime" "nodiratime" "discard" ];
+fileSystems."/".options = [ 
+  "noatime" 
+  "nodiratime" 
+  "discard" 
+];
+
+powerManagement.cpuFreqGovernor =
+  lib.mkIf config.services.tlp.enable (lib.mkForce null);
 
 boot = {
   cleanTmpDir = true;
   initrd.availableKernelModules = [ "hid-logitech-hidpp" ];
 
-  kernelModules = [ "hid-logitech-hidpp" "kvm-intel" "intel_pstate" ];
+  kernelPackages = pkgs.linuxPackages_latest;
+
+  kernelModules = [ 
+    "hid-logitech-hidpp" 
+    "kvm-intel" 
+    "intel_pstate" 
+    "tp_smapi" 
+  ];
+
+  kernel.sysctl = {
+      "vm.swappiness" = lib.mkDefault 1;
+  };
 
   loader.timeout = 1;
   loader.grub = {
-    enable = true;
-    version = 2;
-    efiSupport = true;
+    enable                = true;
+    version               = 2;
+    efiSupport            = true;
     efiInstallAsRemovable = true;
-    device = "nodev";
+    device                = "nodev";
   };
 };
 
 hardware = {
   cpu.intel.updateMicrocode = true;
-  nvidiaOptimus.disable = false;
-  bluetooth.enable = true;
-  pulseaudio = {
-    enable = true;
-    package = pkgs.pulseaudioFull;
+  bluetooth.enable          = true;
+  nvidiaOptimus.disable     = false;
+  bumblebee = {
+    enable         = true;
+    connectDisplay = true;
+    group          = "video";
+  };
+  trackpoint = {
+    enable       = true;
+    emulateWheel = true;
+    sensitivity  = 200;
+    speed        = 500;
+  };
+
+  pulseaudio = with pkgs; {
+    enable       = true;
+    package      = pulseaudioFull;
+    support32Bit = true;
+    configFile   = writeTextFile {
+      name = "default.pa";
+      text = (import ./pulseaudio.nix).config;
+    };
   };
   opengl = {
-    driSupport = true;
+    driSupport      = true;
     driSupport32Bit = true;
-    s3tcSupport = true;
+    extraPackages = with pkgs; [
+        vaapiIntel
+        vaapiVdpau
+        libvdpau-va-gl
+    ];
   };
 };
 
 sound = {
-  enable = true;
+  enable           = true;
   mediaKeys.enable = true;
-  mediaKeys.volumeStep = "10%";
 };
 
 security.sudo.wheelNeedsPassword = false;
 
-networking.hostName = "anpryl"; # Define your hostname.
+networking.hostName = "anpryl-t460p";
 
   # Add unstable channel
-  # sudo nix-channel --add https://nixos.org/channels/nixpkgs-unstable nixos-unstable
+  # sudo nix-channel --add https://nixos.org/channels/nixos nixos-unstable
   # sudo nix-channel --update
   nixpkgs.config = with pkgs;
   {
     allowUnfree = true;
-    packageOverrides = pkgs: {
-      unstable = import <nixos-unstable> {
-        # pass the nixpkgs config to the unstable alias
-        # to ensure `allowUnfree = true;` is propagated:
-        config = config.nixpkgs.config;
-      };
-    };
+    # overlays = [];
+    # packageOverrides = pkgs: {
+      # unstable = import <nixos-unstable> {
+        # config = config.nixpkgs.config;
+      # };
+    # };
   };
 
-  # services.redshift
+
 
   environment.systemPackages = with pkgs;
     let 
-      stcfg = (import ./st-config.nix {});
+      unstableTar = fetchTarball http://nixos.org/channels/nixos-unstable/nixexprs.tar.xz;
+      unstable = import unstableTar {
+        config = config.nixpkgs.config;
+      };
+      slock' = slock.overrideDerivation (oldAttrs: {
+        patches = [
+          (fetchpatch {
+            name   = "slock-capscolor";
+            url    = "https://tools.suckless.org/slock/patches/slock-capscolor.diff";
+            sha256 = "05nwlvchvnvvqmx1vz1b7vzpcl889lyg59j25pqnaqs01dnn1w0d";
+          })
+          (fetchpatch {
+            name   = "slock-dpms";
+            url    = "https://tools.suckless.org/slock/patches/slock-dpms-20170923-fa11589.diff";
+            sha256 = "1581ghqynq5v6ysri0d805f8vavfvswdzkgc0x6fmkd7svif0sq1";
+          })
+          (fetchpatch {
+            name   = "slock-mediakeys";
+            url    = "https://tools.suckless.org/slock/patches/slock-mediakeys-20170111-2d2a21a.diff";
+            sha256 = "18gf1blh1m56m0n1px6ly0wxp0bpdhjjxyvb8wm5mzfpnnn6gqsz";
+          })
+          (fetchpatch {
+            name   = "slock-quickcancel";
+            url    = "https://tools.suckless.org/slock/patches/slock-quickcancel-20160619-65b8d52.diff";
+            sha256 = "0f7pzcr0mj2kccqv8mpizvflqraj2llcn62ayrqf1fjvlr39183v";
+          })
+        ];
+      });
+      stNix = callPackage ./st-config.nix {};
       st' = st.override { 
-        conf = stcfg.config; 
-        patches = [ ./st-no-bold.patch ];
+        conf    = stNix.config;
+        patches = [ 
+          (writeTextFile {
+            name = "st-no-bold.patch";
+            text = stNix.noBoldPatch;
+          })
+        ];
       }; 
       neovim' = neovim.override { vimAlias = true; };
       # https://github.com/NixOS/nixpkgs/issues/31060
       dropbox' = (importNixPkgs {
-        rev = "85f0eef69cb29572184c315f575120158b4fb617";
+        rev    = "85f0eef69cb29572184c315f575120158b4fb617";
         sha256 = "1f3ahjd7jzh0vpg5s2rfl9mbskl6q8yl1xslpgkb4w7f1nyd5snc";
       }).dropbox;
     in 
       [
 	google-play-music-desktop-player
-        # powertop
         ag
         arandr
         bluez
         bluez-tools
         cabal2nix
         ctags
+        tmate
         dfilemanager
+        libreoffice-fresh
         direnv
         dropbox
         ffmpeg
@@ -142,6 +211,7 @@ networking.hostName = "anpryl"; # Define your hostname.
         gitAndTools.gitFull
         gnumake
         go
+        gccgo
         google-chrome
         haskellPackages.hasktags
         haskellPackages.steeloverseer
@@ -153,40 +223,113 @@ networking.hostName = "anpryl"; # Define your hostname.
         imagemagick
         iotop
         jq
-        keepass
-        keepassx
+        xorg.xhost
+        keepassx-reboot
         libnotify
-        mesa_noglu
         mkpasswd
-        mosh
         neovim'
         networkmanager
-        networkmanagerapplet
+        networkmanagerapplet # network tray
+        thunderbird
         nix-repl
         ntfs3g
         paprefs     # pulseaudio
-        pasystray   # pulseaudio
+        pasystray   # pulseaudio tray
         pavucontrol # pulseaudio
         python3
         python35Packages.youtube-dl
         qt5.qtwebkit
         skype
-        slock
+        slock'
         speedtest_cli
         st'
         tldr
         udiskie
         unstable.firefox
         unstable.rambox
-        unstable.steam
         unstable.viber
+        unstable.vlc
         unzip
         vifm
         wget
         xclip
         xorg.xwininfo
         yadm
+        tree
         zsh
+        acpi
+        xorg.libXinerama
+        httpie
+        file
+        lsof
+        gwenview # image viewer
+        tig
+        bfg-repo-cleaner
+
+        zip
+        apg
+        unstable.ansible
+        sshpass
+        cloc
+        # elmPackages.elm
+        # nodejs
+        mysqlWorkbench
+        apvlv
+
+        perlPackages.Appcpanminus
+        perlPackages.PathTiny
+        perlPackages.DBDmysql
+        
+        unstable.dep
+
+        gdb
+        # pdf2htmlEX
+        haskellPackages.hpack
+        haskellPackages.ghcid
+        haskellPackages.stylish-haskell
+        haskellPackages.hindent
+        haskellPackages.hlint
+        unstable.stack
+        # stack2nix
+        pgadmin
+        # stackage2nix
+        cabal2nix
+        cabal-install
+        unstable.ghc
+        zlib
+        vagrant
+        transmission_gtk
+
+        nixops
+        disnix
+        patchelf
+
+        wineFull
+
+        # mosh
+        # wicd
+        # powertop
+        # dunst - notification
+        # xxkb - language
+        # haskellPackages.pdf2line
+        # apvlv
+        # xkblayout-state
+        # services.redshift
+        # mosh
+        # copyq
+        # clipit
+        # transmission xmonad config
+        # mpv
+        # cmplayer
+        # tpacpi-bat
+        # easystroke
+        # krusader
+        # speedcrunch
+        # jdownloader2
+        # rsnapshot
+        # borge
+        # newsbeuter
+        # elinks
       ];
 
   environment.variables = with pkgs; lib.mkAfter { GOROOT = [ "${go.out}/share/go" ]; };
@@ -194,41 +337,81 @@ networking.hostName = "anpryl"; # Define your hostname.
   networking.networkmanager.enable = true;
   networking.firewall.enable = false;
 
+  systemd.services.nixos-upgrade.path = with pkgs; [ gnutar xz.bin gzip config.nix.package.out ];
+
   services = {
-    acpid.enable = true;
-    printing.enable        = true;
+    acpid.enable           = true;
+    autorandr.enable       = true;
     dbus.enable            = true;
+    #fprintd.enable         = true;
     locate.enable          = true;
-    upower.enable          = true;
-    udisks2.enable         = true;
     nixosManual.showManual = true;
     openntpd.enable        = true;
     openssh.enable         = true;
-    journald.extraConfig   = "SystemMaxUse=50M";
+    printing.enable        = true;
+    tlp.enable             = true;
+    udisks2.enable         = true;
+    upower.enable          = true;
+    plex = {
+      enable = true;
+      openFirewall = true;
+      user = "anpryl";
+      group = "anpryl";
+    };
+    pgmanage = {
+      enable = false;
+      connections = {
+          "local" = "hostaddr=127.0.0.1 port=5432 dbname=testdb";
+      };
+    };
+    postgresql = {
+      enable = true;
+      enableTCPIP = true;
+    };
+    journald.extraConfig = "SystemMaxUse=50M";
   };
 
   # powerManagement.powertop.enable = true;
 
   services.xserver = with pkgs; {
-    enable              = true;
-    autorun             = true;
-    exportConfiguration = true;
-    layout              = "us,ru";
-    videoDrivers        = [ "nvidia" "intel" ];
-    xkbOptions          = "ctrl:nocaps,grp:alt_space_toggle,terminate:ctrl_alt_bksp";
+    enable                 = true;
+    autorun                = true;
+    exportConfiguration    = true;
+    enableCtrlAltBackspace = true;
+    layout                 = "us,ru";
+    videoDrivers           = [ "nvidia" "intel" ];
+    xkbOptions             = "ctrl:nocaps,grp:alt_space_toggle,terminate:ctrl_alt_bksp";
+
+    # dpi = 192;
+    # xrandrHeads = [
+      # {
+        # output = "ePD1";
+        # primary = false;
+        # # monitorConfig = ''
+          # # Option "DPI" "192 x 192"
+        # # '';
+      # }
+      # {
+        # output = "HDMI1";
+        # primary = true;
+        # # monitorConfig = ''
+          # # Option "DPI" "96 x 96"
+        # # '';
+      # }
+    # ];
 
     xautolock = {
       enable = true;
       locker = "slock";
-      time = 10;
+      time   = 15;
     };
 
     displayManager = {
         # check xkbOptions later
+        # ${xlibs.setxkbmap}/bin/setxkbmap -option ctrl:nocaps &
+        # ${xlibs.setxkbmap}/bin/setxkbmap -option grp:alt_space_toggle &
+        # ${xlibs.setxkbmap}/bin/setxkbmap -option terminate:ctrl_alt_bksp &
       sessionCommands = lib.mkAfter ''
-        ${xlibs.setxkbmap}/bin/setxkbmap -option ctrl:nocaps &
-        ${xlibs.setxkbmap}/bin/setxkbmap -option grp:alt_space_toggle &
-        ${xlibs.setxkbmap}/bin/setxkbmap -option terminate:ctrl_alt_bksp &
         ${xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr &
         ${networkmanagerapplet}/bin/nm-applet &
         ${pasystray}/bin/pasystray &
@@ -236,10 +419,10 @@ networking.hostName = "anpryl"; # Define your hostname.
         ${coreutils}/bin/sleep 30 && ${dropbox}/bin/dropbox &> /tmp/dropbox_err &
       '';
       slim = {
-        enable = true;
+        enable      = true;
         defaultUser = "anpryl";
-        theme = fetchurl {
-          url = "https://github.com/Hinidu/nixos-solarized-slim-theme/archive/1.2.tar.gz";
+        theme       = fetchurl {
+          url    = "https://github.com/Hinidu/nixos-solarized-slim-theme/archive/1.2.tar.gz";
           sha256 = "f8918f56e61d4b8f885a4dfbf1285aeac7d7e53a7458e32942a759fedfd95faf";
         };
       };
@@ -247,7 +430,7 @@ networking.hostName = "anpryl"; # Define your hostname.
     windowManager = {
       default = "xmonad";
       xmonad = {
-        enable = true;
+        enable                 = true;
         enableContribAndExtras = true;
         extraPackages = hpkgs: [
           hpkgs.xmonad-contrib
@@ -260,26 +443,29 @@ networking.hostName = "anpryl"; # Define your hostname.
 
   programs = {
     ssh.startAgent = true;
-    slock.enable = true;
+    slock.enable   = true;
+    thefuck.enable = true;
+    light.enable   = true;
     tmux = {
-      enable = true;
-      clock24 = true;
-      baseIndex = 1;
-      keyMode = "vi";
-      shortcut = "a";
+      enable                        = true;
+      clock24                       = true;
+      baseIndex                     = 1;
+      keyMode                       = "vi";
+      shortcut                      = "a";
       customPaneNavigationAndResize = false;
     };
     zsh = {
-      enable = true;
+      enable     = true;
       promptInit = "";
       ohMyZsh = {
         enable = true;
-        theme = "agnoster";
+        theme  = "agnoster";
         plugins = [
           "zsh-completions"
           "nix-zsh-completions"
           "commmon-aliases"
           "tmux"
+          "elm"
           "git"
           "cabal"
           "docker"
@@ -303,17 +489,14 @@ networking.hostName = "anpryl"; # Define your hostname.
   virtualisation = {
     virtualbox = {
       host = {
-        enable = true;
+        enable          = true;
         enableHardening = true;
-        headless = true;
+        headless        = false;
       };
-      # guest = {
-        # enable = true;
-      # };
     };
     docker = {
-      enable = true;
-      enableOnBoot = true;
+      enable           = true;
+      enableOnBoot     = true;
       autoPrune.enable = true;
     };
   };
@@ -324,17 +507,15 @@ networking.hostName = "anpryl"; # Define your hostname.
   };
 
   fonts = {
-    enableFontDir = true;
+    enableFontDir          = true;
     enableGhostscriptFonts = true;
-    enableDefaultFonts = true;
+    enableDefaultFonts     = true;
     fontconfig = {
-      enable = true;
-      ultimate = {
-        enable = true;
-      };
+      enable          = true;
+      ultimate.enable = true;
       defaultFonts = {
         monospace = ["SauceCodePro"];
-        serif = ["Roboto"];
+        serif     = ["Roboto"];
         sansSerif = ["Open sans"];
       };
     };
@@ -352,14 +533,18 @@ networking.hostName = "anpryl"; # Define your hostname.
     ];
   };
 
-  users.extraUsers.anpryl = {
-    uid = 1000;
-    home = "/home/anpryl";
-    createHome = true;
-    shell = "${pkgs.zsh}/bin/zsh";
-    # extraGroups = [ "wheel" "networkmanager" "audio" "adb" "video" "power" "vboxusers" "cdrom" ];
-    extraGroups = [ "wheel" "networkmanager" "audio" "docker" "vboxusers" ];
-    hashedPassword = "$6$su9cWrwt$.ypbFeRUsW1ec82FxvbP0vIqKGEUIKJU1K3aFxhTfuI96D/K7E0du0y6be8UOJ72ZvnPA1DYVLqClLgLKJD5x/";
+  users = {
+    groups = {
+      anpryl = {};
+    };
+    users.anpryl = {
+      uid            = 1000;
+      home           = "/home/anpryl";
+      group          = "anpryl";
+      createHome     = true;
+      shell          = "${pkgs.zsh}/bin/zsh";
+      extraGroups    = [ "anpryl" "wheel" "networkmanager" "audio" "docker" "vboxusers" "power" "video" ];
+    };
   };
 
   system =
@@ -367,15 +552,17 @@ networking.hostName = "anpryl"; # Define your hostname.
     version = "17.09";
   in {
     stateVersion = version;
-    autoUpgrade.enable = true;
-    autoUpgrade.channel = "https://nixos.org/channels/nixos-" + version;
-    copySystemConfiguration = true;
+    autoUpgrade = {
+      enable      = true;
+      channel     = "https://nixos.org/channels/nixos-" + version;
+      dates       = "10:00";
+    };
   };
 
   nix = {
-    gc.automatic = true;
-    gc.dates = "00:00";
-    useSandbox = true;
+    gc.automatic      = true;
+    gc.dates          = "11:00";
+    useSandbox        = true;
     autoOptimiseStore = true;
   };
 }
