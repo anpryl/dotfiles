@@ -1,4 +1,5 @@
-# stylish-haskell configuration file
+# Default stylish-haskell configuration file in Serokell.
+# It's based on default config provided by `stylish-haskell --defaults` but has some changes
 # ==================================
 
 # The stylish-haskell tool is mainly configured by specifying steps. These steps
@@ -41,7 +42,7 @@ steps:
       # Default: global.
       align: global
 
-      # Folowing options affect only import list alignment.
+      # The following options affect only import list alignment.
       #
       # List align has following options:
       #
@@ -64,6 +65,28 @@ steps:
       # Default: after_alias
       list_align: after_alias
 
+      # Right-pad the module names to align imports in a group:
+      #
+      # - true: a little more readable
+      #
+      #   > import qualified Data.List       as List (concat, foldl, foldr,
+      #   >                                           init, last, length)
+      #   > import qualified Data.List.Extra as List (concat, foldl, foldr,
+      #   >                                           init, last, length)
+      #
+      # - false: diff-safe
+      #
+      #   > import qualified Data.List as List (concat, foldl, foldr, init,
+      #   >                                     last, length)
+      #   > import qualified Data.List.Extra as List (concat, foldl, foldr,
+      #   >                                           init, last, length)
+      #
+      # Default: true
+      #
+      # Note: we intentionally disable it to make diffs smaller and reduce
+      # number of merge conflicts.
+      pad_module_names: true
+
       # Long list align style takes effect when import is too long. This is
       # determined by 'columns' setting.
       #
@@ -75,7 +98,7 @@ steps:
       #   short enough to fit to single line. Otherwise it'll be multiline.
       #
       # - multiline: One line per import list entry.
-      #   Type with contructor list acts like single import.
+      #   Type with constructor list acts like single import.
       #
       #   > import qualified Data.Map as M
       #   >     ( empty
@@ -87,11 +110,29 @@ steps:
       # Default: inline
       long_list_align: inline
 
+      # Align empty list (importing instances)
+      #
+      # Empty list align has following options
+      #
+      # - inherit: inherit list_align setting
+      #
+      # - right_after: () is right after the module name:
+      #
+      #   > import Vector.Instances ()
+      #
+      # Default: inherit
+      empty_list_align: inherit
+
       # List padding determines indentation of import list on lines after import.
-      # This option affects 'list_align' and 'long_list_align'.
+      # This option affects 'long_list_align'.
+      #
+      # - <integer>: constant value
+      #
+      # - module_name: align under start of module name.
+      #   Useful for 'file' and 'group' align settings.
       list_padding: 4
 
-      # Separate lists option affects formating of import list for type
+      # Separate lists option affects formatting of import list for type
       # or class. The only difference is single space between type and list
       # of constructors, selectors and class functions.
       #
@@ -108,6 +149,22 @@ steps:
       # Default: true
       separate_lists: true
 
+      # Space surround option affects formatting of import lists on a single
+      # line. The only difference is single space after the initial
+      # parenthesis and a single space before the terminal parenthesis.
+      #
+      # - true: There is single space associated with the enclosing
+      #   parenthesis.
+      #
+      #   > import Data.Foo ( foo )
+      #
+      # - false: There is no space associated with the enclosing parenthesis
+      #
+      #   > import Data.Foo (foo)
+      #
+      # Default: false
+      space_surround: false
+
   # Language pragmas
   - language_pragmas:
       # We can generate different styles of language pragma lists.
@@ -122,32 +179,25 @@ steps:
       # Default: vertical.
       style: vertical
 
-      # Align affects alignment of closing pragma brackets.
-      #
-      # - true: Brackets are aligned in same collumn.
-      #
-      # - false: Brackets are not aligned together. There is only one space
-      #   between actual import and closing bracket.
-      #
-      # Default: true
-      align: true
-
       # stylish-haskell can detect redundancy of some language pragmas. If this
       # is set to true, it will remove those redundant pragmas. Default: true.
       remove_redundant: true
 
   # Replace tabs by spaces. This is disabled by default.
-  - tabs:
-      # Number of spaces to use for each tab. Default: 8, as specified by the
-      # Haskell report.
-      spaces: 2
+  # - tabs:
+  #     # Number of spaces to use for each tab. Default: 8, as specified by the
+  #     # Haskell report.
+  #     spaces: 8
 
   # Remove trailing whitespace
   - trailing_whitespace: {}
 
 # A common setting is the number of columns (parts of) code will be wrapped
 # to. Different steps take this into account. Default: 80.
-columns: 80
+#
+# Note: we set it to 100 because it reduces verbosity of diffs and
+# number of conflicts when we merge something.
+columns: 100
 
 # By default, line endings are converted according to the OS. You can override
 # preferred format here.
@@ -159,11 +209,15 @@ columns: 80
 # - crlf: Convert to CRLF ("\r\n").
 #
 # Default: native.
-newline: lf
+newline: native
 
-# Sometimes, language extensions are specified in a cabal file or from the
-# command line instead of using language pragmas in the file. stylish-haskell
-# needs to be aware of these, so it can parse the file correctly.
+# These syntax-affecting language extensions are enabled so that
+# stylish-haskell wouldn't fail with parsing errors when processing files
+# in projects that have those extensions enabled in the .cabal file
+# rather than locally.
+#
+# To my best knowledge, no harm should result from enabling an extension
+# that isn't actually used in the file/project. —@neongreen
 language_extensions:
   - BangPatterns
   - ConstraintKinds
@@ -185,8 +239,8 @@ language_extensions:
   - ScopedTypeVariables
   - StandaloneDeriving
   - TemplateHaskell
+  - QuasiQuotes
   - TupleSections
   - TypeApplications
   - TypeFamilies
   - ViewPatterns
-  - QuasiQuotes

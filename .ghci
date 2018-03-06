@@ -31,13 +31,11 @@
 :set -fwarn-inline-rule-shadowing
 :set -fwarn-missing-exported-signatures
 :set -fwarn-missing-fields
-:set -fwarn-missing-import-lists
 :set -fwarn-missing-methods
 :set -fwarn-missing-monadfail-instances 
 :set -fwarn-missing-signatures 
 :set -fwarn-name-shadowing
 :set -fwarn-noncanonical-monoid-instances
-:set -fwarn-orphans
 :set -fwarn-overflowed-literals
 :set -fwarn-overlapping-patterns
 :set -fwarn-redundant-constraints
@@ -58,9 +56,11 @@
 :set -fwarn-warnings-deprecations
 :set -fwarn-wrong-do-bind
 
+-- :set -fwarn-orphans
+-- :set -fwarn-missing-import-lists
 -- :set -fwarn-missing-local-signatures
 -- :set -freverse-errors
 -- :set -fwarn-monomorphism-restriction
 
-:def pretty \_ -> return ("import Text.Show.Pretty (pPrint, ppShow)\n:set -interactive-print pPrint")
-:def no-pretty \_ -> return (":set -interactive-print System.IO.print")
+-- :def pretty \_ -> return ("import Text.Show.Pretty (pPrint, ppShow)\n:set -interactive-print pPrint")
+-- :def no-pretty \_ -> return (":set -interactive-print System.IO.print")
