@@ -15,34 +15,6 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 #PERL_MB_OPT="--install_base \"/home/anpryl/perl5\""; export PERL_MB_OPT;
 #PERL_MM_OPT="INSTALL_BASE=/home/anpryl/perl5"; export PERL_MM_OPT;
 
-alias ls='ls --color=always'
-alias dir='dir --color=always'
-alias vdir='vdir --color=always'
-
-alias ll='ls -alF'
-alias la='ls -A'
-alias l='ls -CF'
-
-alias zcfg="source ~/.zshrc"
-alias vzsh="nvim ~/.zshrc"
-alias vgit="nvim ~/.gitconfig"
-alias vnvim="nvim ~/.config/nvim/init.vim"
-alias vssh="nvim ~/.ssh/config"
-alias dus="du -hs * | sort -hr"
-alias dff='df -h'
-alias duu='du -h --max-depth=1 | sort -h'
-alias weather='http wttr.in'
-alias tgms='cd $GOPATH/src/gitlab.qarea.org/tgms'
-alias gopath='cd $GOPATH/src'
-alias rac='docker rm -fv $(docker ps -a -q)'
-alias reboot="sudo systemctl reboot"
-alias poweroff="sudo systemctl poweroff"
-alias txa="tmux -2 attach || tmux -2 new"
-alias halt="sudo halt"
-alias mnix-env="nix-env -f https://github.com/NixOS/nixpkgs/archive/master.tar.gz"
-alias haskgen='hasktags -c -x -R . ; codex update'
-alias sbuild='stack build --fast --file-watch'
-
 stty -ixon
 
 set -o vi
@@ -70,11 +42,12 @@ setopt HIST_IGNORE_ALL_DUPS
 setopt HIST_IGNORE_SPACE
 setopt NO_BEEP
 setopt AUTO_CD
-setopt CORRECT_ALL
+# setopt CORRECT_ALL
 setopt histexpiredupsfirst histfindnodups
 setopt histignoredups histnostore histverify histignorespace extended_history
 setopt notify globdots correct pushdtohome cdablevars autolist
-setopt correctall autocd recexact longlistjobs
+# setopt correctall autocd recexact longlistjobs
+setopt autocd recexact longlistjobs
 setopt autoresume histignoredups pushdsilent noclobber
 setopt autopushd pushdminus extendedglob rcquotes mailwarning
 unsetopt bgnice autoparamslash
@@ -95,7 +68,7 @@ zstyle ':completion:*' verbose yes
 zstyle ':completion:*:descriptions' format '%B%d%b'
 zstyle ':completion:*:messages' format '%d'
 zstyle ':completion:*:warnings' format 'No matches for: %d'
-zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
+# zstyle ':completion:*:corrections' format '%B%d (errors: %e)%b'
 zstyle ':completion:*' group-name ''
 zstyle ':completion:*' matcher-list 'm:{a-z}={A-Z}'
 zstyle ':completion:*:*:-subscript-:*' tag-order indexes parameters
@@ -159,6 +132,45 @@ pk () {
     fi
 }
 
+alias ls='ls --color=always'
+alias dir='dir --color=always'
+alias vdir='vdir --color=always'
+
+alias df='df -h'
+alias du='du -h'
+
+alias mv='nocorrect mv -i'
+alias cp='nocorrect cp -iR'
+alias rm='nocorrect rm -i'
+alias rmf='nocorrect rm -f'
+alias rmrf='nocorrect rm -fR'
+alias mkdir='nocorrect mkdir'
+alias ls='ls -lhF --color=auto'
+alias ll='ls -alF'
+alias la='ls -A'
+alias l='ls -CF'
+
+alias zcfg="source ~/.zshrc"
+alias vzsh="nvim ~/.zshrc"
+alias vgit="nvim ~/.gitconfig"
+alias vnvim="nvim ~/.config/nvim/init.vim"
+alias vssh="nvim ~/.ssh/config"
+alias dus="du -hs * | sort -hr"
+alias dff='df -h'
+alias duu='du -h --max-depth=1 | sort -h'
+alias weather='http wttr.in'
+alias tgms='cd $GOPATH/src/gitlab.qarea.org/tgms'
+alias gopath='cd $GOPATH/src'
+alias rac='docker rm -fv $(docker ps -a -q)'
+alias reboot="sudo systemctl reboot"
+alias sleep="sudo systemctl suspend"
+alias poweroff="sudo systemctl poweroff"
+alias txa="tmux -2 attach || tmux -2 new"
+alias halt="sudo halt"
+alias mnix-env="nix-env -f https://github.com/NixOS/nixpkgs/archive/master.tar.gz"
+alias haskgen='hasktags -c -x -R . ; codex update'
+alias sbuild='stack build --fast --file-watch'
+
 eval `dircolors /home/anpryl/dircolors-solarized/dircolors.ansi-dark`
 
 if [ "$TMUX" = "" ]; then txa; fi
@@ -168,4 +180,6 @@ if [ -n "${commands[fzf-share]}" ]; then
   source "$(fzf-share)/key-bindings.zsh"
 fi
 
-PROMPT="%{%f%b%k%}$(build_prompt)"$'\n'"$ "
+eval $(thefuck --alias)
+
+PROMPT=$PROMPT$'\n'"$ "
