@@ -40,7 +40,8 @@ Plug 'takac/vim-hardtime'
 Plug 'Shougo/unite.vim'
 Plug 'Shougo/vimfiler.vim'
 Plug 'vim-scripts/nginx.vim'
-Plug 'tmux-plugins/vim-tmux'
+" Plug 'tmux-plugins/vim-tmux'
+Plug 'christoomey/vim-tmux-navigator'
 Plug 'ericpruitt/tmux.vim', {'rtp': 'vim/'}
 Plug 'chase/vim-ansible-yaml'
 Plug 'elzr/vim-json'
@@ -74,7 +75,11 @@ Plug 'nsf/gocode', {'rtp': 'vim/'}
 
 Plug 'feuerbach/vim-hs-module-name'
 Plug 'neovimhaskell/haskell-vim'
-Plug 'nbouscal/vim-stylish-haskell'
+"Plug 'nbouscal/vim-stylish-haskell'
+"Plug 'alx741/vim-hindent'
+
+Plug 'ElmCast/elm-vim'
+Plug 'pbogut/deoplete-elm'
 
 Plug 'johngrib/vim-game-code-break'
 
@@ -188,14 +193,15 @@ nnoremap <F8> :nohlsearch<CR>
 nnoremap <F9> :TagbarToggle<CR>
 nnoremap <F10> :Grepper -tool ag<CR> 
 
+nnoremap ы :w<CR>
 nnoremap s :w<CR>
 nnoremap S :Neomake<CR>
 tnoremap <Esc> <C-\><C-n>
 nnoremap <leader><Esc> :HardTimeToggle<CR>
 
-nnoremap <A-e> :FzfBuffers<CR>
-nnoremap <A-r> :FzfLines<CR>
-nnoremap <C-p> :FzfFiles<CR>
+nnoremap <leader>fb :FzfBuffers<CR>
+nnoremap <leader>fl :FzfLines<CR>
+nnoremap <leader>ff :FzfFiles<CR>
 
 nnoremap <leader>l i<CR><ESC>
 
@@ -224,7 +230,7 @@ noremap N Nzz
 nnoremap <leader>j <C-w><bar><C-w>_
 nnoremap <leader>k <C-w>=
 
-nnoremap <leader>r :source ~/.config/nvim/init.vim<CR>
+nnoremap <leader>R :source ~/.config/nvim/init.vim<CR>
 
 nnoremap <leader><TAB> :tabprevious<CR>
 nnoremap <leader><S-TAB> :tabnext<CR>
@@ -251,19 +257,27 @@ nnoremap <silent> <Down> :exe "resize " . (winheight(0) * 20/21)<CR>
 nnoremap <silent> <Right> :exe "vertical resize " . (winwidth(0) * 21/20)<CR>
 nnoremap <silent> <Left> :exe "vertical resize " . (winwidth(0) * 20/21)<CR>
 
-nnoremap <C-J> <C-W><C-J>
-nnoremap <C-K> <C-W><C-K>
-nnoremap <C-L> <C-W><C-L>
-nnoremap <C-H> <C-W><C-H>
+let g:tmux_navigator_no_mappings = 1
 
-inoremap <Up> <nop>
-vnoremap <Up> <nop>
-inoremap <Down> <nop>
-vnoremap <Down> <nop>
-inoremap <Left> <nop>
-vnoremap <Left> <nop>
-inoremap <Right> <nop>
-vnoremap <Right> <nop>
+nnoremap <silent> <C-J> :TmuxNavigateLeft<cr>
+nnoremap <silent> <C-K> :TmuxNavigateDown<cr>
+nnoremap <silent> <C-L> :TmuxNavigateUp<cr>
+nnoremap <silent> <C-H> :TmuxNavigateRight<cr>
+" nnoremap <silent> {Previous-Mapping} :TmuxNavigatePrevious<cr>
+
+" nnoremap <C-J> <C-W><C-J>
+" nnoremap <C-K> <C-W><C-K>
+" nnoremap <C-L> <C-W><C-L>
+" nnoremap <C-H> <C-W><C-H>
+
+" inoremap <Up> <nop>
+" vnoremap <Up> <nop>
+" inoremap <Down> <nop>
+" vnoremap <Down> <nop>
+" inoremap <Left> <nop>
+" vnoremap <Left> <nop>
+" inoremap <Right> <nop>
+" vnoremap <Right> <nop>
 
 "C-r in visual mode to replace selected text
 vnoremap <C-r> "hy:%s/<C-r>h//gc<left><left><left>
@@ -285,9 +299,9 @@ nnoremap <leader>qq :wqa<CR>
 nnoremap <leader>q! :qa!<CR>
 nnoremap <leader>qs :Obsession!<CR>
 
-nnoremap <leader>vf :VimFilerSplit<CR>
-nnoremap <leader>tf :VimFilerTab<CR>
-nnoremap <leader>f  :VimFiler<CR>
+" nnoremap <leader>vf :VimFilerSplit<CR>
+" nnoremap <leader>tf :VimFilerTab<CR>
+" nnoremap <leader>f  :VimFiler<CR>
 
 nnoremap <leader>vc :VimuxCloseRunner<CR>
 
@@ -398,8 +412,6 @@ let g:airline_theme='solarized'
 let g:autosess_dir='~/.local/share/nvim/autosess'
 let g:prosession_dir='~/.local/share/nvim/autosess'
 
-let g:deoplete#enable_at_startup = 1
-
 let g:VimuxOrientation="v"
 let g:VimuxHeight="30"
 
@@ -418,8 +430,16 @@ let g:hs_module_no_mappings=1
 let g:clever_f_across_no_line=1
 let g:clever_f_timeout_ms=3000
 
+let g:elm_setup_keybindings = 0
+
+let g:hindent_on_save = 0
 
 autocmd CompleteDone * pclose
+
+augroup fmt
+  autocmd!
+  autocmd BufWritePre * Neoformat
+augroup END
 
 func! DeleteTrailingWS()
     exe "normal mz"

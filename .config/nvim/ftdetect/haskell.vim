@@ -13,20 +13,30 @@ let g:haskell_indent_before_where = -2
 let g:haskell_indent_after_bare_where = 2
 let g:haskell_indent_do = 3
 let g:haskell_indent_in = 1
-let g:haskell_indent_guard = 2
+let g:haskell_indent_guard = 4
 let g:haskell_classic_highlighting = 1
+
+let g:neoformat_enabled_haskell = ['stylishhaskell']
+
+au FileType haskell setlocal shiftwidth=4
+
+" let g:hindent_on_save = 0 disables in main config
 
 let g:haskell_tabular = 1
 
 let g:hlintRefactor#disableDefaultKeybindings = 1
 
-let g:neomake_haskell_enabled_makers = ['hlint','ghcmod']
+" let g:hindent_on_save = 1
+" let g:hindent_indent_size = 4
+" let g:hindent_line_length = 100
+
+let g:neomake_haskell_enabled_makers = ['hlint']
 
 let g:hoogle_search_count = 20
 
 set tags+=/,.codex.tags;/
 
-autocmd BufWritePost *.hs Neomake hlint
+autocmd BufWritePost *.hs Neomake
 
 au FileType haskell vmap g=     :Tabularize /=<CR>
 au FileType haskell vmap g;     :Tabularize /::<CR>
