@@ -40,7 +40,7 @@ Plug 'takac/vim-hardtime'
 Plug 'Shougo/unite.vim'
 Plug 'Shougo/vimfiler.vim'
 Plug 'vim-scripts/nginx.vim'
-" Plug 'tmux-plugins/vim-tmux'
+Plug 'tmux-plugins/vim-tmux'
 Plug 'christoomey/vim-tmux-navigator'
 Plug 'ericpruitt/tmux.vim', {'rtp': 'vim/'}
 Plug 'chase/vim-ansible-yaml'
@@ -63,6 +63,7 @@ Plug 'junegunn/fzf.vim'
 Plug 'sbdchd/neoformat'
 Plug 'qpkorr/vim-bufkill'
 Plug 'sbdchd/vim-shebang'
+" Plug 'tpope/vim-db'
 
 Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/echodoc.vim'
@@ -199,9 +200,11 @@ nnoremap S :Neomake<CR>
 tnoremap <Esc> <C-\><C-n>
 nnoremap <leader><Esc> :HardTimeToggle<CR>
 
-nnoremap <leader>fb :FzfBuffers<CR>
-nnoremap <leader>fl :FzfLines<CR>
-nnoremap <leader>ff :FzfFiles<CR>
+nnoremap <C-e> :FzfBuffers<CR>
+nnoremap <C-y> :FzfLines<CR>
+nnoremap <C-p> :FzfFiles<CR>
+
+nnoremap <C-y> :Grepper -tool ag<CR> 
 
 nnoremap <leader>l i<CR><ESC>
 
@@ -257,12 +260,12 @@ nnoremap <silent> <Down> :exe "resize " . (winheight(0) * 20/21)<CR>
 nnoremap <silent> <Right> :exe "vertical resize " . (winwidth(0) * 21/20)<CR>
 nnoremap <silent> <Left> :exe "vertical resize " . (winwidth(0) * 20/21)<CR>
 
-let g:tmux_navigator_no_mappings = 1
-
-nnoremap <silent> <C-J> :TmuxNavigateLeft<cr>
-nnoremap <silent> <C-K> :TmuxNavigateDown<cr>
-nnoremap <silent> <C-L> :TmuxNavigateUp<cr>
-nnoremap <silent> <C-H> :TmuxNavigateRight<cr>
+" let g:tmux_navigator_no_mappings = 1
+" 
+" nnoremap <silent> <C-J> :TmuxNavigateLeft<cr>
+" nnoremap <silent> <C-K> :TmuxNavigateDown<cr>
+" nnoremap <silent> <C-L> :TmuxNavigateUp<cr>
+" nnoremap <silent> <C-H> :TmuxNavigateRight<cr>
 " nnoremap <silent> {Previous-Mapping} :TmuxNavigatePrevious<cr>
 
 " nnoremap <C-J> <C-W><C-J>

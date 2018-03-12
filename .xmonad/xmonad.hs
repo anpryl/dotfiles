@@ -83,16 +83,16 @@ workspaces' = wspaces ++ (map show $ drop (length wspaces) [1 .. 8]) ++ ["IM"]
 
 manageHook' =
     composeAll
-        [ isFullscreen --> doFullFloat
-        , name =? "KeePass" --> moveTo "Keepass"
-        , name =? "KeePassX - Password Manager" --> moveTo "Keepass"
-        , className =? "keepassxc" --> moveTo "Keepass"
-        , className =? "Mail" --> moveTo "IM"
-        , className =? "Vlc" --> doCenterFloat
-        , className =? "Timeguard" --> doCenterFloat
-        , name =? "Pocket Casts" --> moveTo "Media"
+        [ isFullscreen                                        --> doFullFloat
+        , name =? "KeePass"                                   --> moveTo "Keepass"
+        , name =? "KeePassX - Password Manager"               --> moveTo "Keepass"
+        , className =? "keepassxc"                            --> moveTo "Keepass"
+        , className =? "Mail"                                 --> moveTo "IM"
+        , className =? "Vlc"                                  --> doCenterFloat
+        , className =? "Timeguard"                            --> doCenterFloat
+        , name =? "Pocket Casts"                              --> moveTo "Media"
         , transience'
-        , isDialog --> doCenterFloat
+        , isDialog                                            --> doCenterFloat
         , className /=? "Google-chrome" <&&> role =? "pop-up" --> doCenterFloat
         ]
   where
@@ -117,6 +117,7 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
     , ((altMask .|. shiftMask, xK_j), sendKey controlMask xK_Page_Up) -- Next tab
     , ((altMask .|. shiftMask, xK_k), sendKey controlMask xK_Page_Down) -- Prev tab
 
+
     , ((altMask, xK_h), sendKey noModMask xK_Left)
     , ((altMask, xK_l), sendKey noModMask xK_Right)
     , ((altMask, xK_j), sendKey noModMask xK_Down)
@@ -135,13 +136,12 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
     , ((modMask, xK_y), spawn "xmonad --recompile")
     , ((modMask .|. shiftMask, xK_y), spawn "xmonad --restart")
     , ((modMask, xK_p), shellPrompt promptCfg)
-    , ((noModMask, xF86XK_AudioLowerVolume), setMute True >> lowerVolume 5 >> pure ())
-    , ((noModMask, xF86XK_AudioRaiseVolume), setMute True >> raiseVolume 5 >> pure ())
-    , ((noModMask, xF86XK_AudioMute), toggleMute >> pure ())
+    , ((modMask .|. shiftMask, xK_m), spawnScript "toggle_all_sources.sh" >> pure ())
+    , ((noModMask, xF86XK_AudioLowerVolume), changeVolume "-5%" >> pure())
+    , ((noModMask, xF86XK_AudioRaiseVolume), changeVolume "+5%" >> pure())
+    , ((noModMask, xF86XK_AudioMute), spawnScript "toggle_all_sinks.sh" >> pure ())
     , ((noModMask, xF86XK_MonBrightnessDown), spawn "light -U 5")
     , ((noModMask, xF86XK_MonBrightnessUp), spawn "light -A 5")
-    , ((0, 0x1008FFB2), spawn "amixer set Capture toggle")
-    {- , ((0, 0x1008FFB2), spawn $ "pactl -- set-source-mute 1 toggle") -}
     , ((noModMask, xK_Print), screenshotAll)
     , ((modMask, xK_Print), liftIO screenshotToFolder)
     , ((modMask .|. shiftMask, xK_Print), screenshotZone)
@@ -151,6 +151,10 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
     , (f, mask) <- [(viewScreen, 0), (sendToScreen, shiftMask)]
     ]
   where
+    spawnScript name = spawn ("/home/anpryl/scripts/" <> name)
+    changeVolume value =
+        spawnScript "unmute_all_sinks.sh" >>
+        spawnScript ("change_volume_all_sinks.sh '" <> value <> "'")
     altMask = mod1Mask
     autorandr flags = spawn ("autorandr " <> flags) >> spawn setWallpaper
     andNotifySend msg = " && notify-send \"" <> msg <> "\""
