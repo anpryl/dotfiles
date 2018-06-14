@@ -162,14 +162,22 @@ alias weather='http wttr.in'
 alias tgms='cd $GOPATH/src/gitlab.qarea.org/tgms'
 alias gopath='cd $GOPATH/src'
 alias rac='docker rm -fv $(docker ps -a -q)'
+alias rai='docker image rm -f $(docker images -q)'
 alias reboot="sudo systemctl reboot"
-alias sleep="sudo systemctl suspend"
+alias suspend="sudo systemctl suspend"
 alias poweroff="sudo systemctl poweroff"
 alias txa="tmux -2 attach || tmux -2 new"
 alias halt="sudo halt"
 alias mnix-env="nix-env -f https://github.com/NixOS/nixpkgs/archive/master.tar.gz"
 alias haskgen='hasktags -c -x -R . ; codex update'
 alias sbuild='stack build --fast --file-watch'
+
+
+tgmsva(){
+   export projname=$(basename $(pwd))
+   export vid=$(vagrant global-status | grep -o '^[0-9A-Za-z]\{7\} ')
+   vagrant ssh $vid -- -t 'cd ~/go/src/gitlab.qarea.org/tgms/'$projname'; /bin/bash;'
+}
 
 eval `dircolors /home/anpryl/dircolors-solarized/dircolors.ansi-dark`
 

@@ -1,5 +1,5 @@
 [user]
-  name = anpryl
+  name = Anatolii Prylutskyi
   email = anpryl@gmail.com
 [push]
   default = current
@@ -53,5 +53,7 @@
   insteadOf = https://gitlab.qarea.org/tgms/testdb
 [url "git@bitbucket.org:healum-qarea/"]
   insteadOf = https://bitbucket.org/healum-qarea/
+[url "git@github.com:MagalixTechnologies/"]
+  insteadOf = https://github.com/MagalixTechnologies/
 [url "git@github.com:"]
   insteadOf = gh:
