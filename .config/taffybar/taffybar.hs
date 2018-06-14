@@ -1,6 +1,6 @@
 import           Control.Concurrent                       (forkIO, threadDelay)
 import           Control.Monad.Trans                      (MonadIO, liftIO)
-import           Data.Char                                (isSpace)
+import           Data.Char                                (isSpace, toUpper)
 import           Data.IORef
 import           Data.List
 import qualified Data.Text                                as T
@@ -33,12 +33,14 @@ main = do
         defaultTaffybarConfig
         { barHeight = 24
         , barPosition = Top
-        , startWidgets = [pager, note]
+        {- , startWidgets = [pager, note] -}
+        , startWidgets = [pager]
         , endWidgets =
               intercalate
                   [separator]
                   [ [tray]
                   , [clock]
+                  {- , [currentLang] -}
         {- , [shellWidgetNew "…" "xkblayout-state print %s" 1] -}
                   , batteries ctx
                   , [volume]
@@ -56,7 +58,7 @@ main = do
     batteries (Just bctx) = [batteryBarWidget, batteryCharging bctx]
     batteries Nothing     = [batteryBarWidget]
     tray = systrayNew
-    volume = textVolumeNew "" "Master" 0.1
+    volume = textVolumeNew "" "Master" 0.5
     netDown = downNetMonitorNew 1 "wlp3s0"
     netUp = upNetMonitorNew 1 "wlp3s0"
     netDownText = textWidgetNew "D:"
@@ -64,6 +66,7 @@ main = do
     separator = textWidgetNew "|"
     memP = pollingGraphNew memCfg 0.5 memCallback
     cpuP = pollingGraphNew cpuCfg 0.5 cpuCallback
+    currentLang = shellWidgetNew "…" (map toUpper) "xkblayout-state" ["print", "%s"] 1
     {- batteryAcpi = shellWidgetNew "…" "acpi" 1 -}
     {- batteryStatus batteryContext = pollingLabelNew "…" 1 $ batteryStatusFunc batteryContext -}
     {- battery = textBatteryNew ("$percentage$" ++ colorize solarizedBase01 "" "%") 5 -}
@@ -104,9 +107,8 @@ pager :: IO Widget
 pager =
     taffyPagerNew
         defaultPagerConfig
-  {- { activeWindow     = const "" -}
-        { activeWindow = escape . shorten 20
-  {- { activeWindow     = escape -}
+        { activeWindow = escape . shorten 120
+        {- { activeWindow = escape -}
         , activeLayout = escape
         , activeWorkspace = colorize solarizedBlue "" . wrap "[" "]" . escape
         , hiddenWorkspace = escape
@@ -147,9 +149,9 @@ textWidgetNew str = do
     widgetShowAll box
     pure $ toWidget box
 
-shellWidgetNew :: String -> String -> Double -> IO Widget
-shellWidgetNew defaultStr cmd interval = do
-    label <- pollingLabelNew defaultStr interval $ stripStr $ readProcess cmd [] []
+shellWidgetNew :: String -> (String -> String) -> String -> [String] -> Double -> IO Widget
+shellWidgetNew defaultStr f cmd args interval = do
+    label <- pollingLabelNew defaultStr interval $ f . rstrip <$> readProcess cmd args []
     widgetShowAll label
     pure $ toWidget label
 
@@ -225,7 +227,7 @@ batteryChargingFunc bctx = do
 
 batteryBarWidget :: IO Widget
 batteryBarWidget = do
-    bar <- batteryBarNew batteryBarConfig 1
+    bar <- batteryBarNew batteryBarConfig 10
     ebox <- eventBoxNew
     containerAdd ebox bar
     eventBoxSetVisibleWindow ebox False

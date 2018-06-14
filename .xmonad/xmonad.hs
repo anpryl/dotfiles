@@ -69,6 +69,8 @@ startup' = do
     spawnOn "Web" "firefox"
     spawnOn "IM" "rambox"
     spawnOn "IM" "thunderbird"
+    spawnOn "IM" "telegram-desktop"
+    spawnOn "IM" "skypeforlinux"
     spawnOn "Media" "google-play-music-desktop-player"
     spawnOn "Media" "google-chrome-stable --app=https://playbeta.pocketcasts.com/web/"
     {- spawnOn "Media" "firefox --new-window https://playbeta.pocketcasts.com/web/" -}
@@ -100,7 +102,7 @@ manageHook' =
     role = stringProperty "WM_WINDOW_ROLE"
     name = stringProperty "WM_NAME"
 
-layout' = tiled ||| Full
+layout' = Full ||| tiled
   where
     tiled = Tall nmaster delta ratio
     nmaster = 1
@@ -117,7 +119,6 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
     , ((altMask .|. shiftMask, xK_j), sendKey controlMask xK_Page_Up) -- Next tab
     , ((altMask .|. shiftMask, xK_k), sendKey controlMask xK_Page_Down) -- Prev tab
 
-
     , ((altMask, xK_h), sendKey noModMask xK_Left)
     , ((altMask, xK_l), sendKey noModMask xK_Right)
     , ((altMask, xK_j), sendKey noModMask xK_Down)
@@ -127,18 +128,20 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
     , ((altMask, xK_d), sendKey noModMask xK_Page_Down)
     , ((altMask, xK_u), sendKey noModMask xK_Page_Up)
 
+    , ((modMask, xK_f), sendKey noModMask xK_BackSpace)
+    , ((shiftMask .|. modMask, xK_f), sendKey altMask xK_BackSpace)
+
     , ((modMask, xK_c), kill)
     , ((modMask, xK_u), autorandr "-c")
-    , ((modMask .|. controlMask, xK_u), autorandr "-l docked-gaming")
-    , ((modMask .|. shiftMask, xK_u), autorandr "-l double-docked")
+    , ((altMask .|. modMask, xK_u), autorandr "-l internal")
     , ((modMask .|. shiftMask, xK_l), spawn "slock")
     , ((modMask .|. controlMask, xK_l), io (exitWith ExitSuccess))
     , ((modMask, xK_y), spawn "xmonad --recompile")
     , ((modMask .|. shiftMask, xK_y), spawn "xmonad --restart")
     , ((modMask, xK_p), shellPrompt promptCfg)
     , ((modMask .|. shiftMask, xK_m), spawnScript "toggle_all_sources.sh" >> pure ())
-    , ((noModMask, xF86XK_AudioLowerVolume), changeVolume "-5%" >> pure())
-    , ((noModMask, xF86XK_AudioRaiseVolume), changeVolume "+5%" >> pure())
+    , ((noModMask, xF86XK_AudioLowerVolume), changeVolume "-5%" >> pure ())
+    , ((noModMask, xF86XK_AudioRaiseVolume), changeVolume "+5%" >> pure ())
     , ((noModMask, xF86XK_AudioMute), spawnScript "toggle_all_sinks.sh" >> pure ())
     , ((noModMask, xF86XK_MonBrightnessDown), spawn "light -U 5")
     , ((noModMask, xF86XK_MonBrightnessUp), spawn "light -A 5")
@@ -184,6 +187,7 @@ promptCfg =
     , fgColor = solarizedBlue
     , fgHLight = solarizedBase03
     , promptBorderWidth = 2
+    , showCompletionOnTab = True
     , borderColor = solarizedRed
     }
 
