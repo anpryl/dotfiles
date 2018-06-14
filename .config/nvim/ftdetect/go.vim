@@ -8,12 +8,11 @@ let g:go_highlight_types = 1
 let g:go_fmt_autosave = 1
 let g:go_test_timeout = "30s"
 
-" let g:go_metalinter_enabled = ['go','govet','vet','deadcode','golint','varcheck','aligncheck','errcheck','dupl','ineffassign','unconvert','goconst','gosimple','staticcheck', 'misspell']
 let g:go_metalinter_enabled = ['go','govet','vet','deadcode','golint','varcheck','aligncheck','errcheck','dupl','ineffassign','unconvert','goconst','gosimple','staticcheck', 'misspell']
 
 let g:neomake_go_enabled_makers = ['gometalinter']
 
-" autocmd! BufWritePost *.go Neomake
+autocmd! BufWritePost *.go Neomake 
 
 let g:easytags_languages = {
 \   'go': {

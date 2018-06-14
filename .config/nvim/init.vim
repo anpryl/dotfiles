@@ -63,7 +63,8 @@ Plug 'junegunn/fzf.vim'
 Plug 'sbdchd/neoformat'
 Plug 'qpkorr/vim-bufkill'
 Plug 'sbdchd/vim-shebang'
-" Plug 'tpope/vim-db'
+Plug 'vifm/vifm.vim'
+" Plug 'tpope/vim-dadbod'
 
 Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/echodoc.vim'
@@ -76,7 +77,9 @@ Plug 'nsf/gocode', {'rtp': 'vim/'}
 
 Plug 'feuerbach/vim-hs-module-name'
 Plug 'neovimhaskell/haskell-vim'
-"Plug 'nbouscal/vim-stylish-haskell'
+" Plug 'nbouscal/vim-stylish-haskell'
+
+"Plug 'ndmitchell/ghcid', { 'rtp': 'plugins/nvim' }
 "Plug 'alx741/vim-hindent'
 
 Plug 'ElmCast/elm-vim'
@@ -194,6 +197,9 @@ nnoremap <F8> :nohlsearch<CR>
 nnoremap <F9> :TagbarToggle<CR>
 nnoremap <F10> :Grepper -tool ag<CR> 
 
+nnoremap <A-a> <C-a>
+nnoremap <A-x> <C-x>
+
 nnoremap ы :w<CR>
 nnoremap s :w<CR>
 nnoremap S :Neomake<CR>
@@ -201,10 +207,11 @@ tnoremap <Esc> <C-\><C-n>
 nnoremap <leader><Esc> :HardTimeToggle<CR>
 
 nnoremap <C-e> :FzfBuffers<CR>
-nnoremap <C-y> :FzfLines<CR>
+nnoremap <C-y> :FzfAg<CR>
 nnoremap <C-p> :FzfFiles<CR>
 
-nnoremap <C-y> :Grepper -tool ag<CR> 
+" nnoremap <C-y> :Grepper -tool ag<CR> 
+nnoremap <A-y> :nohlsearch<CR>
 
 nnoremap <leader>l i<CR><ESC>
 
@@ -240,9 +247,9 @@ nnoremap <leader><S-TAB> :tabnext<CR>
 " nnoremap <S-TAB> :tabprev<CR>
 " nnoremap <TAB> :tabnext<CR>
 
-nnoremap <leader>T <C-w>T
+" nnoremap <leader>T <C-w>T
 
-nnoremap <leader>t :UpdateTags -R<CR>
+nnoremap <leader>t :UpdateTags -R .<CR>
 
 vnoremap J :m '>+1<CR>gv=gv
 vnoremap K :m '<-2<CR>gv=gv
@@ -302,6 +309,11 @@ nnoremap <leader>qq :wqa<CR>
 nnoremap <leader>q! :qa!<CR>
 nnoremap <leader>qs :Obsession!<CR>
 
+let g:AutoPairsFlyMode = 0
+let g:AutoPairsShortcutBackInsert = '<C-b>'
+
+let g:AutoPairsShortcutFastWrap = '<C-e>'
+
 " nnoremap <leader>vf :VimFilerSplit<CR>
 " nnoremap <leader>tf :VimFilerTab<CR>
 " nnoremap <leader>f  :VimFiler<CR>
@@ -309,10 +321,12 @@ nnoremap <leader>qs :Obsession!<CR>
 nnoremap <leader>vc :VimuxCloseRunner<CR>
 
 nnoremap <leader>qb :BufOnly<CR>
-nnoremap <leader>qt :tabonly<CR>
+" nnoremap <leader>qt :tabonly<CR>
 
 nnoremap <leader>b :BuffergatorToggle<CR>
 nnoremap <leader>B :BuffergatorTabsToggle<CR>
+
+nnoremap <leader>f :EditVifm<CR>
 
 "Select last pasted text
 nnoremap <expr> gp '`[' . strpart(getregtype(), 0, 1) . '`]'
@@ -372,7 +386,7 @@ let vim_markdown_preview_github=1
 
 set tags=.tags,./.tags
 set cpoptions+=d
-let g:easytags_async = 0
+let g:easytags_async = 1
 let g:easytags_autorecurse = 0
 let g:easytags_always_enabled = 1
 let g:easytags_dynamic_files = 2
@@ -404,7 +418,7 @@ let g:ctrlp_cmd = 'CtrlPMixed'
 let g:ctrlp_working_path_mode = 'ra'
 let g:ctrlp_show_hidden = '1'
 let g:ctrlp_custom_ignore = {
-            \ 'dir':  '\v[\/]\.(git|hg|svn|stack-work)$',
+            \ 'dir':  '\v[\/]\.(git|hg|svn|stack-work|dist|dist-newstyle)$',
             \ 'file': '\v\.(exe|so|dll|tags|.tags)$',
             \ }
 

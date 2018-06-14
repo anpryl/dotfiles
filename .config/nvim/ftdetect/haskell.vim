@@ -30,7 +30,7 @@ let g:hlintRefactor#disableDefaultKeybindings = 1
 " let g:hindent_indent_size = 4
 " let g:hindent_line_length = 100
 
-let g:neomake_haskell_enabled_makers = ['hlint']
+let g:neomake_haskell_enabled_makers = [ 'hlint' ]
 
 let g:hoogle_search_count = 20
 
@@ -58,11 +58,11 @@ let g:easytags_languages = {
 " au FileType haskell nmap gs :GhcModSigCodegen<CR>
 
 " au FileType haskell nmap gh :Hindent<CR>
+" au FileType haskell nnoremap <leader>hd :Ghcid<CR>
 
 " au FileType haskell nmap <leader>go :call ApplyOneSuggestion()<CR>
 " au FileType haskell nmap <leader>ga :call ApplyAllSuggestions()<CR>
 
-" au FileType haskell nnoremap S :Ghcid<CR>
 
 " au BufNewFile,BufRead *.hs map <buffer> <F7> :Hoogle 
 " au BufNewFile,BufRead *.hs map <buffer> <C-F7> :HoogleClose<CR>
