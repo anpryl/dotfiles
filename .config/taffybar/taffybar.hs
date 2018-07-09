@@ -107,7 +107,7 @@ pager :: IO Widget
 pager =
     taffyPagerNew
         defaultPagerConfig
-        { activeWindow = escape . shorten 120
+        { activeWindow = escape . shorten 60
         {- { activeWindow = escape -}
         , activeLayout = escape
         , activeWorkspace = colorize solarizedBlue "" . wrap "[" "]" . escape

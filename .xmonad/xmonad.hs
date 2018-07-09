@@ -140,9 +140,13 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
     , ((modMask .|. shiftMask, xK_y), spawn "xmonad --restart")
     , ((modMask, xK_p), shellPrompt promptCfg)
     , ((modMask .|. shiftMask, xK_m), spawnScript "toggle_all_sources.sh" >> pure ())
-    , ((noModMask, xF86XK_AudioLowerVolume), changeVolume "-5%" >> pure ())
-    , ((noModMask, xF86XK_AudioRaiseVolume), changeVolume "+5%" >> pure ())
-    , ((noModMask, xF86XK_AudioMute), spawnScript "toggle_all_sinks.sh" >> pure ())
+    , ((noModMask, xF86XK_AudioLowerVolume), lowerVolume 5 >> pure ())
+    , ((noModMask, xF86XK_AudioRaiseVolume), raiseVolume 5 >> pure ())
+    , ((noModMask, xF86XK_AudioMute), toggleMute >> pure ())
+    {- , ((noModMask, xF86XK_AudioMute), spawnScript "toggle_all_sinks.sh" >> pure ()) -}
+    {- , ((noModMask, xF86XK_AudioLowerVolume), changeVolume "-5%" >> pure ()) -}
+    {- , ((noModMask, xF86XK_AudioRaiseVolume), changeVolume "+5%" >> pure ()) -}
+    {- , ((noModMask, xF86XK_AudioMute), spawnScript "toggle_all_sinks.sh" >> pure ()) -}
     , ((noModMask, xF86XK_MonBrightnessDown), spawn "light -U 5")
     , ((noModMask, xF86XK_MonBrightnessUp), spawn "light -A 5")
     , ((noModMask, xK_Print), screenshotAll)
