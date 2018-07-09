@@ -1,8 +1,8 @@
 { lib, config, pkgs, ... }:
-let 
+let
   importNixPkgs = { fetchPkgs ? pkgs, rev, sha256 }:
-    import (fetchNixPkgs { inherit fetchPkgs rev sha256; }) { 
-      config = config.nixpkgs.config; 
+    import (fetchNixPkgs { inherit fetchPkgs rev sha256; }) {
+      config = config.nixpkgs.config;
     };
   fetchNixPkgs = { fetchPkgs, rev, sha256 }:
     fetchPkgs.fetchFromGitHub {
@@ -18,10 +18,10 @@ time = {
   hardwareClockInLocalTime = false;
 };
 
-fileSystems."/".options = [ 
-  "noatime" 
-  "nodiratime" 
-  "discard" 
+fileSystems."/".options = [
+  "noatime"
+  "nodiratime"
+  "discard"
 ];
 
 powerManagement = {
@@ -47,11 +47,11 @@ boot = {
   cleanTmpDir = true;
   initrd.availableKernelModules = [ "hid-logitech-hidpp" ];
 
-  kernelModules = [ 
-    "hid-logitech-hidpp" 
-    "kvm-intel" 
-    "intel_pstate" 
-    "tp_smapi" 
+  kernelModules = [
+    "hid-logitech-hidpp"
+    "kvm-intel"
+    "intel_pstate"
+    "tp_smapi"
   ];
 
   kernel.sysctl = {
@@ -76,7 +76,7 @@ hardware = {
     extraConfig = "
       # [General]
       # Enable=Source,Sink,Media,Socket
-      
+
       # Set idle timeout (in minutes) before the connection will
       # be disconnect (defaults to 0 for no timeout)
       IdleTimeout=2
@@ -137,13 +137,13 @@ nixpkgs =
       sha256 = "10sbyna5p03x7h6mc5cfl4dh8cd2ah4n8zxqnlm6asbjrr6n8xs7";
       inherit fetchPkgs;
     };
-    stConfigured = 
+    stConfigured =
       self: super: {
-        st = 
-          let stNix = super.callPackage ./st-config.nix {}; 
-          in super.st.override { 
+        st =
+          let stNix = super.callPackage ./st-config.nix {};
+          in super.st.override {
             conf    = stNix.config;
-            patches = [ 
+            patches = [
               (super.writeTextFile {
                 name = "st-no-bold.patch";
                 text = stNix.noBoldPatch;
@@ -164,14 +164,7 @@ nixpkgs =
     patchedTelegram = self: super: {
       tdesktop = self.unstable.tdesktop;
     };
-    googleChromeNoGPU = self: super:
-    {
-      google-chrome = self.unstable.google-chrome.override {
-        commandLineArgs =
-          " --disable-gpu";
-      };
-    };
-    stackage2nix = 
+    stackage2nix =
       import (builtins.fetchTarball https://github.com/typeable/nixpkgs-stackage/archive/master.tar.gz);
     patchedSlock = self: super: {
       slock = (nixpkgs1709 super).slock.overrideAttrs (oldAttrs: {
@@ -200,7 +193,7 @@ nixpkgs =
       });
     };
 
-    withUnstable = 
+    withUnstable =
       let
         unstableTar = builtins.fetchTarball http://nixos.org/channels/nixos-unstable/nixexprs.tar.xz;
         masterTar = builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/master.tar.gz;
@@ -213,10 +206,9 @@ nixpkgs =
           config = config.nixpkgs.config;
         };
       };
-  in 
+  in
   {
     overlays = [
-      googleChromeNoGPU
       neovimAlias
       patchedSlock
       patchedTelegram
@@ -240,9 +232,9 @@ environment.systemPackages = with pkgs;
       blueman
       ctags
       tmate
-      dfilemanager
+      # dfilemanager
       libreoffice-fresh
-      direnv
+      # direnv
       # dropbox
       ffmpeg
       fzf
@@ -334,10 +326,10 @@ environment.systemPackages = with pkgs;
       perlPackages.DBDmysql
 
       nodePackages.node2nix
-      
+
       firefox
 
-      unstable.rambox
+      rambox
       unstable.ansible
       unstable.vlc
       unstable.dep
@@ -349,30 +341,32 @@ environment.systemPackages = with pkgs;
       gdb
       haskellPackages.hasktags
       # haskellPackages.hindent
-      # haskellPackages.hlint
       # haskellPackages.hpack
+      # haskellPackages.hlint
       haskellPackages.steeloverseer
-      # haskellPackages.taffybar
+      haskellPackages.taffybar
       haskellPackages.una
-      # haskellPackages.xmonad-contrib
-      # haskellPackages.xmonad-extras
-      # haskellPackages.taffybar
       (haskell.lib.dontCheck haskellPackages.elocrypt)
       # stackage2nix
       ghc
       # stack
       # cabal-install
       pgadmin
+      pgmanage
       cabal2nix
+
+      vscode
       # zlib
-      transmission_gtk
+      # transmission_gtk
+
+      nmap-graphical
 
       nixops
       disnix
       patchelf
 
-      # wineFull
-      # winetricks
+      wineFull
+      winetricks
 
       dunst # notification
       xkblayout-state # current layout cli
@@ -399,7 +393,7 @@ environment.systemPackages = with pkgs;
       # elinks
     ];
 
-environment.variables = with pkgs; 
+environment.variables = with pkgs;
   lib.mkAfter { GOROOT = [ "${go.out}/share/go" ]; };
 
 networking = {
@@ -408,7 +402,7 @@ networking = {
   firewall.enable       = false;
 };
 
-systemd.services.nixos-upgrade.path = with pkgs; 
+systemd.services.nixos-upgrade.path = with pkgs;
   [ gnutar xz.bin gzip config.nix.package.out ];
 
 services = {
@@ -422,12 +416,13 @@ services = {
   openssh.enable         = true;
   printing.enable        = true;
   tlp.enable             = true;
+  transmission.enable    = true;
   udisks2.enable         = true;
   upower.enable          = true;
   # redshift = {
     # enable = true;
-    # latitude = "52";
-    # longitude = "85";
+    # latitude = "47";
+    # longitude = "32";
     # temperature.day = 5500;
     # temperature.night = 3700;
   # };
@@ -439,6 +434,11 @@ services = {
   };
   pgmanage = {
     enable = false;
+    port = 9090;
+    connections = {
+      "idcardevprod" = "hostaddr=159.69.33.180 port=5432";
+    };
+    allowCustomConnections = true;
   };
   postgresql = {
     enable      = true;
@@ -447,9 +447,7 @@ services = {
   journald.extraConfig = "SystemMaxUse=100M";
 };
 
-security.sudo = {
-  wheelNeedsPassword = false;
-};
+security.sudo.wheelNeedsPassword = false;
 
 # https://wiki.archlinux.org/index.php/Power_management#Sleep_hooks
 # https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/security/physlock.nix - as example
@@ -459,8 +457,8 @@ systemd.services.lockOnSuspend = {
   serviceConfig = {
     Type = "forking";
     User = "anpryl";
-    ExecStart = "${pkgs.xautolock}/bin/xautolock -locknow";
-    ExecStartPost = "${pkgs.coreutils}/bin/sleep 2";
+    ExecStart = "/run/wrappers/bin/slock";
+    ExecStartPost = "${pkgs.coreutils}/bin/sleep 1";
   };
   environment.DISPLAY = ":0";
   before = [ "suspend.target" ];
@@ -589,6 +587,7 @@ services.xserver = with pkgs; {
       enable           = true;
       enableOnBoot     = true;
       autoPrune.enable = true;
+      liveRestore      = false;
       package          = pkgs.unstable.docker;
     };
   };
@@ -635,7 +634,17 @@ services.xserver = with pkgs; {
       group          = "anpryl";
       createHome     = true;
       shell          = "${pkgs.zsh}/bin/zsh";
-      extraGroups    = [ "anpryl" "wheel" "networkmanager" "audio" "docker" "vboxusers" "power" "video" ];
+      extraGroups    = [
+        "anpryl"
+        "wheel"
+        "networkmanager"
+        "audio"
+        "docker"
+        "vboxusers"
+        "power"
+        "video"
+        "transmission"
+      ];
     };
   };
 
