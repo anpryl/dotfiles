@@ -11,8 +11,8 @@ RUN apt-get update && \
     apt-get install -y libnss3 && \
     apt-get install -y libxss1 && \
     apt-get install -y libasound2 
-RUN wget https://tgms.qarea.org/distribution/linux/timeguard_0.18.55_amd64.deb && \
-    dpkg -i timeguard_0.18.55_amd64.deb
+RUN wget https://tgms.qarea.org/distribution/linux/timeguard_1.0.4_amd64.deb && \
+    dpkg -i timeguard_1.0.4_amd64.deb
 
 VOLUME "/root/.config"
 
