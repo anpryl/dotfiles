@@ -70,7 +70,6 @@ startup' = do
     spawnOn "IM" "rambox"
     spawnOn "IM" "thunderbird"
     spawnOn "IM" "telegram-desktop"
-    spawnOn "IM" "skypeforlinux"
     spawnOn "Media" "google-play-music-desktop-player"
     spawnOn "Media" "google-chrome-stable --app=https://playbeta.pocketcasts.com/web/"
     {- spawnOn "Media" "firefox --new-window https://playbeta.pocketcasts.com/web/" -}
