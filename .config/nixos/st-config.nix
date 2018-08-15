@@ -23,7 +23,7 @@ index fbfd350..110f3cc 100644
  *
  * font: see http://freedesktop.org/software/fontconfig/fontconfig-user.html
  */
-static char font[] = "SauceCodePro Nerd Font:size=12:antialias=true:autohint=true";
+static char font[] = "SauceCodePro Nerd Font:size=16:antialias=true:autohint=true";
 static int borderpx = 2;
 
 /*
