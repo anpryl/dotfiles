@@ -25,9 +25,11 @@ fileSystems."/".options = [
 ];
 
 powerManagement = {
-  enable = false;
+  enable = true;
+  powertop.enable = true;
   cpuFreqGovernor =
     lib.mkIf config.services.tlp.enable (lib.mkForce null);
+
   # powerDownCommands = ''
   # '';
   # powerUpCommands = ''
@@ -42,7 +44,7 @@ powerManagement = {
 };
 
 boot = {
-  kernelPackages = pkgs.linuxPackages_latest;
+  # kernelPackages = pkgs.linuxPackages_latest;
 
   cleanTmpDir = true;
   initrd.availableKernelModules = [ "hid-logitech-hidpp" ];
@@ -52,7 +54,10 @@ boot = {
     "kvm-intel"
     "intel_pstate"
     "tp_smapi"
+    "tpacpi-bat"
   ];
+
+  extraModulePackages = [ config.boot.kernelPackages.acpi_call ];
 
   kernel.sysctl = {
     "vm.swappiness" = lib.mkDefault 1;
@@ -87,28 +92,18 @@ hardware = {
     ";
   };
   nvidiaOptimus.disable = true;
-  bumblebee = {
-    enable         = false;
-    connectDisplay = true;
-    group          = "video";
-  };
+  bumblebee.enable = false;
   trackpoint = {
     enable       = true;
     emulateWheel = true;
-    sensitivity  = 400;
-    speed        = 500;
+    sensitivity  = 255;
+    speed        = 255;
   };
-  # trackpoint = {
-    # enable       = true;
-    # emulateWheel = true;
-    # sensitivity  = 100;
-    # speed        = 400;
-  # };
 
   pulseaudio = with pkgs; {
     enable       = true;
     package      = pulseaudioFull;
-    support32Bit = true;
+    support32Bit = false;
     configFile   = writeTextFile {
       name = "default.pa";
       text = import ./pulseaudio.nix;
@@ -161,9 +156,6 @@ nixpkgs =
     neovimAlias = self: super: {
       neovim = super.neovim.override { vimAlias = true; };
     };
-    patchedTelegram = self: super: {
-      tdesktop = self.unstable.tdesktop;
-    };
     stackage2nix =
       import (builtins.fetchTarball https://github.com/typeable/nixpkgs-stackage/archive/master.tar.gz);
     patchedSlock = self: super: {
@@ -193,10 +185,16 @@ nixpkgs =
       });
     };
 
+    plexUnstable = self: super: {
+      plex = self.unstable.plex;
+    };
+
     withUnstable =
       let
-        unstableTar = builtins.fetchTarball http://nixos.org/channels/nixos-unstable/nixexprs.tar.xz;
-        masterTar = builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/master.tar.gz;
+        unstableTar =
+          builtins.fetchTarball https://nixos.org/channels/nixos-unstable/nixexprs.tar.xz;
+        masterTar =
+          builtins.fetchTarball https://github.com/NixOS/nixpkgs/archive/master.tar.gz;
       in
       self: super: {
         master = import masterTar {
@@ -211,7 +209,7 @@ nixpkgs =
     overlays = [
       neovimAlias
       patchedSlock
-      patchedTelegram
+      # plexUnstable
       stConfigured
       stackage2nix
       steeloverseer1709
@@ -235,7 +233,6 @@ environment.systemPackages = with pkgs;
       # dfilemanager
       libreoffice-fresh
       # direnv
-      # dropbox
       ffmpeg
       fzf
       gcc
@@ -246,6 +243,7 @@ environment.systemPackages = with pkgs;
       gccgo
       google-chrome
       rfkill
+      insomnia
       htop
       httpie
       imagemagick
@@ -312,13 +310,11 @@ environment.systemPackages = with pkgs;
       pinta
 
       go2nix
-      tdesktop
+      unstable.tdesktop
 
       traceroute
 
       nix-prefetch-scripts
-
-      # xautolock
 
       perlPackages.locallib
       perlPackages.Appcpanminus
@@ -329,16 +325,18 @@ environment.systemPackages = with pkgs;
 
       firefox
 
-      rambox
-      unstable.ansible
+      master.ansible
+      master.rambox
       unstable.vlc
-      unstable.dep
+      dep
       unstable.docker
       unstable.docker_compose
       unstable.kubernetes
       unstable.vagrant
 
       gdb
+
+      shellcheck
       haskellPackages.hasktags
       # haskellPackages.hindent
       # haskellPackages.hpack
@@ -365,8 +363,12 @@ environment.systemPackages = with pkgs;
       disnix
       patchelf
 
-      wineFull
-      winetricks
+      # wineFull
+      # winetricks
+
+      i7z
+      powertop
+      # tpacpi-bat
 
       dunst # notification
       xkblayout-state # current layout cli
@@ -376,7 +378,6 @@ environment.systemPackages = with pkgs;
 
       # mosh
       # wicd
-      # powertop
       # apvlv
       # copyq
       # transmission
@@ -398,15 +399,21 @@ environment.variables = with pkgs;
 
 networking = {
   hostName              = "anpryl-t460p";
-  networkmanager.enable = true;
   firewall.enable       = false;
+  networkmanager = {
+    enable         = true;
+    wifi.powersave = true;
+  };
 };
 
 systemd.services.nixos-upgrade.path = with pkgs;
   [ gnutar xz.bin gzip config.nix.package.out ];
 
 services = {
-  acpid.enable           = true;
+  acpid = {
+    enable = true;
+    powerEventCommands = "${pkgs.systemd}/bin/systemctl suspend";
+  };
   autorandr.enable       = true;
   dbus.enable            = true;
   #fprintd.enable         = true;
@@ -414,31 +421,45 @@ services = {
   nixosManual.showManual = true;
   openntpd.enable        = true;
   openssh.enable         = true;
-  printing.enable        = true;
-  tlp.enable             = true;
+  printing.enable        = false;
+  tlp = {
+    enable = true;
+    extraConfig = "
+      CPU_HWP_ON_AC=balance_performance
+      CPU_HWP_ON_BAT=power
+      CPU_BOOST_ON_AC=0
+      CPU_BOOST_ON_BAT=0
+      CPU_MIN_PERF_ON_AC=0
+      CPU_MAX_PERF_ON_AC=100
+      CPU_MIN_PERF_ON_BAT=0
+      CPU_MAX_PERF_ON_BAT=80
+      CPU_SCALING_GOVERNOR_ON_AC=performance
+      CPU_SCALING_GOVERNOR_ON_BAT=powersave
+      SCHED_POWERSAVE_ON_AC=0
+      SCHED_POWERSAVE_ON_BAT=1
+      ENERGY_PERF_POLICY_ON_AC=balance_performance
+      ENERGY_PERF_POLICY_ON_BAT=power
+      SATA_LINKPWR_ON_AC=max_performance
+      SATA_LINKPWR_ON_BAT=med_power_with_dipm min_power
+      PCIE_ASPM_ON_AC=performance
+      PCIE_ASPM_ON_BAT=powersave
+    ";
+  };
   transmission.enable    = true;
   udisks2.enable         = true;
   upower.enable          = true;
-  # redshift = {
-    # enable = true;
-    # latitude = "47";
-    # longitude = "32";
+  redshift = {
+    enable = true;
+    # provider = "geoclue2";
+    latitude = "47";
+    longitude = "32";
     # temperature.day = 5500;
     # temperature.night = 3700;
-  # };
+  };
   plex = {
     enable       = true;
-    openFirewall = true;
     user         = "anpryl";
     group        = "anpryl";
-  };
-  pgmanage = {
-    enable = false;
-    port = 9090;
-    connections = {
-      "idcardevprod" = "hostaddr=159.69.33.180 port=5432";
-    };
-    allowCustomConnections = true;
   };
   postgresql = {
     enable      = true;
@@ -452,7 +473,7 @@ security.sudo.wheelNeedsPassword = false;
 # https://wiki.archlinux.org/index.php/Power_management#Sleep_hooks
 # https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/security/physlock.nix - as example
 # TODO make service for all users (systemd.user.services)
-systemd.services.lockOnSuspend = {
+systemd.services.lock-on-suspend = {
   description = "Lock on suspend";
   serviceConfig = {
     Type = "forking";
@@ -472,7 +493,8 @@ services.xserver = with pkgs; {
   enableCtrlAltBackspace = true;
   layout                 = "us,ru";
   videoDrivers           = [ "intel" ];
-  # videoDrivers           = [ "nvidia" "intel" ];
+  # videoDrivers           = [ "nvidia" ];
+  # videoDrivers           = [ "intel" "nvidia" ];
 
   # doesn't work :(
   xkbOptions             = "caps:ctrl_modifier,grp:toggle,terminate:ctrl_alt_bksp";
@@ -480,11 +502,13 @@ services.xserver = with pkgs; {
   xautolock = {
     enable = true;
     locker = "/run/wrappers/bin/slock";
-    time   = 15;
-    notify = 10;
-    notifier = "${pkgs.libnotify}/bin/notify-send \"Locking in 10 seconds\"";
+    time   = 120;
+    extraOptions = [ "-detectsleep" ];
+    enableNotifier = true;
+    notify = 30;
+    notifier = "${pkgs.libnotify}/bin/notify-send \"Locking in 30 seconds\"";
     killer = "${pkgs.systemd}/bin/systemctl suspend";
-    killtime = 30;
+    killtime = 120;
   };
 
   displayManager = {
@@ -502,9 +526,8 @@ services.xserver = with pkgs; {
       ${pasystray}/bin/pasystray &
       ${dunst}/bin/dunst &
       ${clipit}/bin/clipit &
-
+      ${pulseaudioFull}/bin/pulseaudio -k &
       ${blueman}/bin/blueman-applet &
-
       ${coreutils}/bin/sleep 30 && ${xbanish}/bin/xbanish &
       ${coreutils}/bin/sleep 30 && ${udiskie}/bin/udiskie -taP &
     '';
@@ -517,6 +540,7 @@ services.xserver = with pkgs; {
       };
     };
   };
+  # desktopManager.mate.enable = true;
   windowManager = {
     default = "xmonad";
     xmonad = {
@@ -577,9 +601,12 @@ services.xserver = with pkgs; {
 
   virtualisation = {
     virtualbox = {
+      guest = {
+        enable = true;
+      };
       host = {
         enable          = true;
-        enableHardening = true;
+        enableHardening = false;
         headless        = false;
       };
     };
