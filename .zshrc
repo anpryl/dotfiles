@@ -173,12 +173,6 @@ alias haskgen='hasktags -c -x -R . ; codex update'
 alias sbuild='stack build --fast --file-watch'
 
 
-tgmsva(){
-   export projname=$(basename $(pwd))
-   export vid=$(vagrant global-status | grep -o '^[0-9A-Za-z]\{7\} ')
-   vagrant ssh $vid -- -t 'cd ~/go/src/gitlab.qarea.org/tgms/'$projname'; /bin/bash;'
-}
-
 eval `dircolors /home/anpryl/dircolors-solarized/dircolors.ansi-dark`
 
 if [ "$TMUX" = "" ]; then txa; fi
