@@ -132,6 +132,10 @@ pk () {
     fi
 }
 
+nsvim () {
+    test -f shell.nix -o -f default.nix && nix-shell --command "nvim $@" || nvim "$@"
+}
+
 alias ls='ls --color=always'
 alias dir='dir --color=always'
 alias vdir='vdir --color=always'
@@ -171,7 +175,6 @@ alias halt="sudo halt"
 alias mnix-env="nix-env -f https://github.com/NixOS/nixpkgs/archive/master.tar.gz"
 alias haskgen='hasktags -c -x -R . ; codex update'
 alias sbuild='stack build --fast --file-watch'
-
 
 eval `dircolors /home/anpryl/dircolors-solarized/dircolors.ansi-dark`
 
