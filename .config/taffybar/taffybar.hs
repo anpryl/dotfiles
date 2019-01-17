@@ -43,7 +43,7 @@ main = do
                   {- , [currentLang] -}
         {- , [shellWidgetNew "…" "xkblayout-state print %s" 1] -}
                   , batteries ctx
-                  , [volume]
+                  -- , [volume]
                   , [brightness]
         {- , batteries ctx -}
         {- , [batteryAcpi] -}
@@ -107,7 +107,7 @@ pager :: IO Widget
 pager =
     taffyPagerNew
         defaultPagerConfig
-        { activeWindow = escape . shorten 60
+        { activeWindow = colorize solarizedBlue "" . escape . shorten 120
         {- { activeWindow = escape -}
         , activeLayout = escape
         , activeWorkspace = colorize solarizedBlue "" . wrap "[" "]" . escape
@@ -204,6 +204,7 @@ textMemNew interval = do
     label <- pollingLabelNew "" interval memPct
     widgetShowAll label
     pure $ toWidget label
+
 
 memPct :: IO String
 memPct = do
