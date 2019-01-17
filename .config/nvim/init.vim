@@ -64,20 +64,21 @@ Plug 'sbdchd/neoformat'
 Plug 'qpkorr/vim-bufkill'
 Plug 'sbdchd/vim-shebang'
 Plug 'vifm/vifm.vim'
+Plug 'terryma/vim-multiple-cursors'
 " Plug 'tpope/vim-dadbod'
 
-Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
+" Plug 'autozimu/LanguageClient-neovim', { 'do': ':UpdateRemotePlugins' }
 Plug 'Shougo/echodoc.vim'
 
 Plug 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
-Plug 'zchee/deoplete-go', { 'do': 'make' }
+" Plug 'zchee/deoplete-go', { 'do': 'make' }
 Plug 'benmills/vimux'
 Plug 'benmills/vimux-golang'
-Plug 'nsf/gocode', {'rtp': 'vim/'}
+" Plug 'nsf/gocode', {'rtp': 'vim/'}
 
 Plug 'feuerbach/vim-hs-module-name'
 Plug 'neovimhaskell/haskell-vim'
-" Plug 'nbouscal/vim-stylish-haskell'
+Plug 'nbouscal/vim-stylish-haskell'
 
 "Plug 'ndmitchell/ghcid', { 'rtp': 'plugins/nvim' }
 "Plug 'alx741/vim-hindent'
@@ -90,12 +91,6 @@ Plug 'johngrib/vim-game-code-break'
 call plug#end()
 call deoplete#enable()
 call yankstack#setup()
-
-let g:LanguageClient_autoStart=0
-let g:LanguageClient_diagnosticsEnable=0
-let g:LanguageClient_serverCommands = {
-    \ 'haskell': ['hie', '--lsp'],
-    \ }
 
 set history=10000
 set viewdir=~/.cache/nvim/view
@@ -208,9 +203,11 @@ nnoremap <leader><Esc> :HardTimeToggle<CR>
 
 nnoremap <C-e> :FzfBuffers<CR>
 nnoremap <C-y> :FzfAg<CR>
-nnoremap <C-p> :FzfFiles<CR>
+nnoremap <C-f> :FzfFiles<CR>
 
-" nnoremap <C-y> :Grepper -tool ag<CR> 
+nnoremap <silent> <A-r> :MultipleCursorsFind <C-R>/<CR>
+vnoremap <silent> <A-r> :MultipleCursorsFind <C-R>/<CR>
+
 nnoremap <A-y> :nohlsearch<CR>
 
 nnoremap <leader>l i<CR><ESC>
@@ -242,8 +239,11 @@ nnoremap <leader>k <C-w>=
 
 nnoremap <leader>R :source ~/.config/nvim/init.vim<CR>
 
-nnoremap <leader><TAB> :tabprevious<CR>
-nnoremap <leader><S-TAB> :tabnext<CR>
+nmap <leader><tab> <plug>(fzf-maps-n)
+xmap <leader><tab> <plug>(fzf-maps-x)
+omap <leader><tab> <plug>(fzf-maps-o)
+" nnoremap <leader><TAB> :tabprevious<CR>
+" nnoremap <leader><S-TAB> :tabnext<CR>
 " nnoremap <S-TAB> :tabprev<CR>
 " nnoremap <TAB> :tabnext<CR>
 
@@ -468,4 +468,3 @@ augroup whitespace
     autocmd!
     autocmd BufWrite *.hs :call DeleteTrailingWS()
 augroup END
-

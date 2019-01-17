@@ -7,6 +7,8 @@ let g:go_highlight_build_constraints = 1
 let g:go_highlight_types = 1
 let g:go_fmt_autosave = 1
 let g:go_test_timeout = "30s"
+let g:go_gocode_propose_builtins = 0
+let g:go_gocode_propose_source = 0
 
 let g:go_metalinter_enabled = ['go','govet','vet','deadcode','golint','varcheck','aligncheck','errcheck','dupl','ineffassign','unconvert','goconst','gosimple','staticcheck', 'misspell']
 
