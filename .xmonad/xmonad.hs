@@ -67,20 +67,14 @@ terminal' = "st"
 startup' = do
     spawnOn "Term" terminal'
     spawnOn "Web" "firefox"
-    spawnOn "IM" "rambox"
-    spawnOn "IM" "thunderbird"
-    spawnOn "IM" "telegram-desktop"
-    spawnOn "Media" "google-play-music-desktop-player"
     spawnOn "Media" "google-chrome-stable --app=https://playbeta.pocketcasts.com/web/"
-    {- spawnOn "Media" "firefox --new-window https://playbeta.pocketcasts.com/web/" -}
-  {- spawnOn "IM" "skypeforlinux" -}
-  {- spawnOn "Web" "google-chrome-stable" -}
-    {- spawnOn "Keepass" "keepassxc" -}
-    pure ()
+    spawnOn "Telegram" "telegram-desktop"
+    spawnOn "Chrome" "google-chrome-stable"
+    spawnOn "Skype" "skypeforlinux"
+    spawnOn "IM" "slack"
+    spawnOn "IM" "thunderbird"
 
-workspaces' = wspaces ++ (map show $ drop (length wspaces) [1 .. 8]) ++ ["IM"]
-  where
-    wspaces = ["Term", "Web", "Work", "Media", "Misc", "Keepass"]
+workspaces' = ["Term", "Web", "Web2", "Media", "Misc", "Telegram", "Chrome", "Skype", "IM"]
 
 manageHook' =
     composeAll
@@ -113,22 +107,38 @@ myKeys conf@(XConfig {XMonad.modMask = modMask}) =
     [ ((modMask, xK_a), CW.toggleWS)
     , ((modMask, xK_q), onNextNeighbour W.view)
 
-    , ((altMask .|. shiftMask, xK_h), sendKey altMask xK_Left) -- Back
-    , ((altMask .|. shiftMask, xK_l), sendKey altMask xK_Right) -- Forward
-    , ((altMask .|. shiftMask, xK_j), sendKey controlMask xK_Page_Up) -- Next tab
-    , ((altMask .|. shiftMask, xK_k), sendKey controlMask xK_Page_Down) -- Prev tab
+    , ((altMask .|. controlMask, xK_h), sendKey altMask xK_Left) -- Back
+    , ((altMask .|. controlMask, xK_l), sendKey altMask xK_Right) -- Forward
+    , ((altMask .|. controlMask, xK_j), sendKey controlMask xK_Page_Up) -- Next tab
+    , ((altMask .|. controlMask, xK_k), sendKey controlMask xK_Page_Down) -- Prev tab
+
+    , ((altMask .|. shiftMask, xK_y), sendKey (altMask .|. shiftMask) xK_u) -- Bitwarden
 
     , ((altMask, xK_h), sendKey noModMask xK_Left)
     , ((altMask, xK_l), sendKey noModMask xK_Right)
     , ((altMask, xK_j), sendKey noModMask xK_Down)
     , ((altMask, xK_k), sendKey noModMask xK_Up)
+
+    , ((altMask .|. shiftMask, xK_h), sendKey shiftMask xK_Left)
+    , ((altMask .|. shiftMask, xK_l), sendKey shiftMask xK_Right)
+    , ((altMask .|. shiftMask, xK_j), sendKey shiftMask xK_Down)
+    , ((altMask .|. shiftMask, xK_k), sendKey shiftMask xK_Up)
+
     , ((altMask, xK_b), sendKey noModMask xK_Home)
     , ((altMask, xK_e), sendKey noModMask xK_End)
     , ((altMask, xK_d), sendKey noModMask xK_Page_Down)
     , ((altMask, xK_u), sendKey noModMask xK_Page_Up)
 
-    , ((modMask, xK_f), sendKey noModMask xK_BackSpace)
-    , ((shiftMask .|. modMask, xK_f), sendKey altMask xK_BackSpace)
+    , ((altMask .|. shiftMask, xK_b), sendKey shiftMask xK_Home)
+    , ((altMask .|. shiftMask, xK_e), sendKey shiftMask xK_End)
+    , ((altMask .|. shiftMask, xK_d), sendKey shiftMask xK_Page_Down)
+    , ((altMask .|. shiftMask, xK_u), sendKey shiftMask xK_Page_Up)
+
+    , ((modMask, xK_d), sendKey noModMask xK_BackSpace)
+    , ((shiftMask .|. modMask, xK_d), sendKey altMask xK_BackSpace)
+
+    , ((modMask, xK_f), sendKey noModMask xK_Delete)
+    , ((shiftMask .|. modMask, xK_f), sendKey altMask xK_Delete)
 
     , ((modMask, xK_c), kill)
     , ((modMask, xK_u), autorandr "-c")
