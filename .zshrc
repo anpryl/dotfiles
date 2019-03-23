@@ -132,10 +132,6 @@ pk () {
     fi
 }
 
-nsvim () {
-    test -f shell.nix -o -f default.nix && nix-shell --command "nvim $@" || nvim "$@"
-}
-
 alias ls='ls --color=always'
 alias dir='dir --color=always'
 alias vdir='vdir --color=always'

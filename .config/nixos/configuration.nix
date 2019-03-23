@@ -1,9 +1,7 @@
 { lib, config, pkgs, ... }:
 let
   importNixPkgs = rev:
-    import (fetchNixPkgs rev) {
-      config = config.nixpkgs.config;
-    };
+    import (fetchNixPkgs rev) { config = config.nixpkgs.config; };
   fetchNixPkgs = rev:
     builtins.fetchTarball "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz";
 in
@@ -17,7 +15,7 @@ time = {
 fileSystems."/".options = [
   "noatime"
   "nodiratime"
-  "discard"
+  # "discard"
 ];
 
 powerManagement = {
@@ -26,6 +24,8 @@ powerManagement = {
   cpuFreqGovernor =
     lib.mkIf config.services.tlp.enable (lib.mkForce null);
 };
+
+zramSwap.enable = false;
 
 boot = {
   cleanTmpDir = true;
@@ -43,10 +43,10 @@ boot = {
   extraModulePackages = [ config.boot.kernelPackages.acpi_call ];
 
   kernel.sysctl = {
-    "vm.swappiness" = lib.mkDefault 1;
-    "fs.inotify.max_user_watches"   = 1048576;   # default:  8192
-    "fs.inotify.max_user_instances" =    1024;   # default:   128
-    "fs.inotify.max_queued_events"  =   32768;   # default: 16384
+    "vm.swappiness"                 = lib.mkDefault 1;
+    "fs.inotify.max_user_watches"   = 1048576; # default:  8192
+    "fs.inotify.max_user_instances" = 1024;    # default:   128
+    "fs.inotify.max_queued_events"  = 32768;   # default: 16384
   };
 
   loader.timeout = 1;
@@ -139,7 +139,7 @@ nixpkgs =
       neovim = self.unstable.neovim.override { vimAlias = true; };
     };
     stackage2nix = import
-      builtins.fetchTarball 
+      builtins.fetchTarball
       https://github.com/typeable/nixpkgs-stackage/archive/master.tar.gz;
     patchedSlock = self: super: {
       slock = nixpkgs1709.slock.overrideAttrs (oldAttrs: {
@@ -172,32 +172,30 @@ nixpkgs =
       haskellPackagesXmonad = nixpkgs1709.haskellPackages;
     };
 
-    # taffybar2 = self: super: {
-      # haskellPackages = super.haskellPackages.override {
-        # overrides = hpkgsNew: hpkgsOld: {
-          # taffybar2 = hpkgsNew.callPackage ./taffybar.nix {};
-        # };
-      # };
-    # };
-
-    # taffybar2 = self: super: {
-      # haskell = super.haskell // {
-        # packages = super.haskell.packages // {
-          # ghc844 = super.haskell.packages.ghc844.override {
-            # overrides = hpkgsNew: hpkgsOld: {
-              # taffybar2 = hpkgsNew.callPackage ./taffybar.nix {};
-            # };
-          # };
-        # };
-      # };
-    # };
+    telegramUnstable =
+      let wideBaloonsPatch = builtins.fetchurl {
+            url = "https://raw.githubusercontent.com/msva/mva-overlay"
+                + "/b9b506d789aba8ca85f4b372a970d776ffb5e394"
+                + "/net-im/telegram-desktop/files/patches/1.5.15/conditional"
+                + "/wide-baloons/0001_baloons-follows-text-width-on-adaptive-layout.patch";
+            sha256 = "0iqvdfjipqv4h5j79430l5cp3hc3pqwknwbh37nr52imk2nrwgj2";
+          };
+          telegram_1_5_15 =
+          (importNixPkgs "cfe6277e62f66a554f92c33f6bbcaf72e55d5c90").tdesktopPackages.stable;
+      in
+      self: super: {
+        # tdesktop = self.unstable.tdesktop;
+        tdesktop = telegram_1_5_15.overrideAttrs (attrs: {
+          patches = [ wideBaloonsPatch ] ++ attrs.patches;
+        });
+    };
 
     plexUnstable = self: super: {
       plex = self.unstable.plex;
     };
 
     slackDark = self: super: {
-      slack = self.master.slack.override { darkMode = true; };
+      slack = self.unstable.slack.override { darkMode = true; };
     };
 
     dockerUnstable = self: super: {
@@ -205,15 +203,31 @@ nixpkgs =
       docker_compose = self.unstable.docker_compose;
     };
 
-    golangMaster = self: super: {
-      go      = self.master.go;
-      dep     = self.master.dep;
-      gccgo   = self.master.gccgo;
-      go2nix  = self.master.go2nix;
-      dep2nix = self.master.dep2nix;
+    pulseaudioUnstable = self: super: {
+      paprefs        = self.unstable.paprefs;
+      pasystray      = self.unstable.pasystray;
+      pavucontrol    = self.unstable.pavucontrol;
+      pulseaudioFull = self.unstable.pulseaudioFull;
     };
 
-    withUnstable =
+    golangUnstable = self: super: {
+      go            = self.unstable.go;
+      dep           = self.unstable.dep;
+      gccgo         = self.unstable.gccgo;
+      go2nix        = self.unstable.go2nix;
+      vgo2nix       = self.unstable.vgo2nix;
+      dep2nix       = self.unstable.dep2nix;
+      gotools       = self.unstable.gotools;
+      golangci-lint = self.unstable.golangci-lint;
+    };
+
+    bluetoothUnstable = self: super: {
+      bluez       = self.unstable.bluez;
+      bluez-tools = self.unstable.bluez-tools;
+      blueman     = self.unstable.blueman;
+    };
+
+    withMasterAndUnstable =
       let
         unstableTar = builtins.fetchTarball
           https://nixos.org/channels/nixos-unstable/nixexprs.tar.xz;
@@ -228,20 +242,35 @@ nixpkgs =
           config = config.nixpkgs.config;
         };
       };
+    dunstUnstable = self: super: {
+      dunst = self.unstable.dunst;
+    };
+    xbanishUnstable = self: super: {
+      xbanish = self.unstable.xbanish;
+    };
+    powertopUnstable = self: super: {
+      powertop = self.unstable.powertop;
+    };
   in
   {
     overlays = [
       # plexUnstable
       # stackage2nix
-      haskellPackagesXmonad
+      # bluetoothUnstable
+      pulseaudioUnstable
       dockerUnstable
-      golangMaster
+      dunstUnstable
+      golangUnstable
+      haskellPackagesXmonad
       neovimAlias
       patchedSlock
+      powertopUnstable
+      slackDark
       stConfigured
       steeloverseer1709
-      slackDark
-      withUnstable
+      telegramUnstable
+      withMasterAndUnstable
+      xbanishUnstable
     ];
     config = {
       allowUnfree = true;
@@ -254,42 +283,36 @@ environment.systemPackages = with pkgs;
     unstable.google-play-music-desktop-player
     ag
     arandr
+    ctags
+    tmate
     bluez
     bluez-tools
     blueman
-    ctags
-    tmate
     # dfilemanager
     libreoffice-fresh
     # direnv
     ffmpeg
     fzf
-    gcc
     gitAndTools.gitFull
     mercurialFull
     xorg.xev
     git-crypt
     gnumake
-    unstable.unetbootin
-    google-chrome
-    chromium
     hicolor-icon-theme
     breeze-icons
-    # plasma5.breeze-gtk
+    plasma5.breeze-gtk
+    plasma5.breeze-qt5
+    # gnome3.adwaita-icon-theme
     # faba-mono-icons
     # numix-icon-theme-circle
-    # gnome3.adwaita-icon-theme
     # gnome-breeze
-    # plasma5.breeze-qt5
     # gnome2.gnome_icon_theme
     # mate.mate-icon-theme
-    # dzen2
-    # stalonetray
     conky
     rfkill
-    insomnia
-    htop
-    httpie
+    unstable.insomnia
+    unstable.htop
+    unstable.httpie
     imagemagick
     iotop
     jq
@@ -307,7 +330,7 @@ environment.systemPackages = with pkgs;
     paprefs     # pulseaudio
     pasystray   # pulseaudio tray
     pavucontrol # pulseaudio
-    python35Packages.youtube-dl
+    unstable.python35Packages.youtube-dl
     libva-full
     libva-utils
     qt5.qtwebkit
@@ -327,7 +350,6 @@ environment.systemPackages = with pkgs;
     zsh-autoenv
     acpi
     xorg.libXinerama
-    httpie
     file
     lsof
     tig
@@ -352,20 +374,21 @@ environment.systemPackages = with pkgs;
     feh
     gwenview # image viewer
 
+    unstable.dbeaver
+
     # unstable.rq
     # unstable.ripgrep
     # unstable.fd
     # unstable.bat
 
-    # wkhtmltopdf
-
     qbittorrent
 
-    unstable.tdesktop
-
     slack
+    unstable.zoom-us
+    unstable.discord
     unstable.skype
-    unstable.viber
+    # unstable.viber
+    tdesktop
 
     traceroute
 
@@ -384,18 +407,24 @@ environment.systemPackages = with pkgs;
     dep
     gccgo
     go2nix
+    vgo2nix
     dep2nix
+    gotools
+    golangci-lint
 
     remmina
     gnome3.nautilus
 
+    unstable.google-chrome
     unstable.firefox
 
-    # unstable.ansible
     vlc
-    vagrant
+
+    # vagrant
+
     gparted
     winusb
+    unstable.unetbootin
 
     docker_compose
     docker
@@ -413,8 +442,6 @@ environment.systemPackages = with pkgs;
     haskellPackages.threadscope
     (haskell.lib.dontCheck haskellPackages.elocrypt)
     unstable.ghc
-
-    pgadmin
 
     nmap-graphical
 
@@ -468,18 +495,19 @@ systemd.services.nixos-upgrade.path = with pkgs;
   [ gnutar xz.bin gzip config.nix.package.out ];
 
 services = {
+  fstrim.enable = true;
   acpid = {
     enable = true;
     powerEventCommands = "${pkgs.systemd}/bin/systemctl suspend";
   };
-  pgmanage = {
-    enable = true;
-    connections = {
-      idcardev = "hostaddr=159.69.33.180 port=5432 dbname=idcardev sslmode=allow";
-      idcarprod = "hostaddr=159.69.33.180 port=5432 dbname=idcarprod sslmode=allow";
-      surechain_test = "hostaddr=127.0.0.1 port=5432 dbname=surechain_test sslmode=allow";
-    };
-  };
+  # pgmanage = {
+    # enable = true;
+    # connections = {
+      # idcardev = "hostaddr=159.69.33.180 port=5432 dbname=idcardev sslmode=allow";
+      # idcarprod = "hostaddr=159.69.33.180 port=5432 dbname=idcarprod sslmode=allow";
+      # surechain_test = "hostaddr=127.0.0.1 port=5432 dbname=surechain_test sslmode=allow";
+    # };
+  # };
   udev.packages = [ pkgs.gnome3.gnome-settings-daemon ];
   gnome3 = {
     gnome-keyring.enable = true;
@@ -557,6 +585,8 @@ services = {
 };
 
 security.sudo.wheelNeedsPassword = false;
+security.pam.services.slim.enableGnomeKeyring = true;
+
 
 # https://wiki.archlinux.org/index.php/Power_management#Sleep_hooks
 # https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/security/physlock.nix - as example
@@ -651,6 +681,7 @@ services.xserver = with pkgs; {
 };
 
   programs = {
+    adb.enable        = true;
     vim.defaultEditor = true;
     ssh.startAgent    = true;
     slock.enable      = true;
@@ -702,17 +733,17 @@ services.xserver = with pkgs; {
   };
 
   virtualisation = {
-    # virtualbox = {
+    virtualbox = {
       # guest = {
         # enable = true;
       # };
-      # host = {
-        # enable              = true;
-        # enableHardening     = false;
-        # enableExtensionPack = true;
-        # headless            = false;
-      # };
-    # };
+      host = {
+        enable              = true;
+        enableHardening     = false;
+        enableExtensionPack = true;
+        headless            = false;
+      };
+    };
     docker = {
       enable           = true;
       enableOnBoot     = true;
@@ -767,6 +798,7 @@ services.xserver = with pkgs; {
       shell          = "${pkgs.zsh}/bin/zsh";
       extraGroups    = [
         "anpryl"
+        "adbusers"
         "wheel"
         "networkmanager"
         "audio"

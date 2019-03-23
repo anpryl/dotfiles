@@ -238,6 +238,11 @@ snippet test test function
 	func Test${1:name}(t *testing.T) {
 		${2}
 	}
+snippet testc check test function
+	func Test${1:name}(tt *testing.T) {
+	        t := check.T(tt)
+		${2}
+	}
 snippet bench benchmark function
 	func Benchmark${1:name}(b *testing.B) {
 		for i := 0; i < b.N; i++ {

@@ -10,9 +10,8 @@ let g:go_test_timeout = "30s"
 let g:go_gocode_propose_builtins = 0
 let g:go_gocode_propose_source = 0
 
-let g:go_metalinter_enabled = ['go','govet','vet','deadcode','golint','varcheck','aligncheck','errcheck','dupl','ineffassign','unconvert','goconst','gosimple','staticcheck', 'misspell']
-
-let g:neomake_go_enabled_makers = ['gometalinter']
+" let g:go_metalinter_enabled = ['go','govet','vet','deadcode','golint','varcheck','aligncheck','errcheck','dupl','ineffassign','unconvert','goconst','gosimple','staticcheck', 'misspell']
+let g:neomake_go_enabled_makers = []
 
 autocmd! BufWritePost *.go Neomake 
 
@@ -32,6 +31,7 @@ au FileType go let $GOPATH = go#path#Detect()
 au FileType go nmap <silent> gi :GoSameIdsAutoToggle<CR>
 au FileType go nmap gs <Plug>(go-def-vertical)
 
+au FileType go nmap ge :GoIfErr<CR>
 au FileType go nmap gl <Plug>(go-metalinter)
 au FileType go nmap gw <Plug>(go-rename)
 au FileType go nmap gr <Plug>(go-run)

@@ -4,12 +4,6 @@ output DP2
 off
 output DP3
 off
-output DP3-1
-off
-output DP3-2
-off
-output DP3-3
-off
 output HDMI1
 off
 output HDMI2
@@ -19,7 +13,7 @@ off
 output VIRTUAL1
 off
 output eDP1
-gamma 1.0:0.769:0.556
+gamma 1.0:0.909:0.833
 mode 1920x1080
 pos 0x0
 primary
