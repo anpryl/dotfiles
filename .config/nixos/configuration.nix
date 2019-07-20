@@ -1,11 +1,18 @@
 { lib, config, pkgs, ... }:
 let
+  importWithConfig = x:
+    import x { config = config.nixpkgs.config; };
   importNixPkgs = rev:
-    import (fetchNixPkgs rev) { config = config.nixpkgs.config; };
+    importWithConfig (fetchNixPkgs rev);
   fetchNixPkgs = rev:
     builtins.fetchTarball "https://github.com/NixOS/nixpkgs/archive/${rev}.tar.gz";
+  hardware =
+    builtins.fetchTarball "https://github.com/NixOS/nixos-hardware/archive/master.tar.gz";
 in
 {
+imports = [
+  "${hardware}/lenovo/thinkpad/t460s"
+];
 
 time = {
   timeZone                 = "Europe/Kiev";
@@ -54,7 +61,7 @@ boot = {
     enable                = true;
     version               = 2;
     efiSupport            = true;
-    efiInstallAsRemovable = true;
+    # efiInstallAsRemovable = true;
     device                = "nodev";
   };
 };
@@ -77,15 +84,17 @@ hardware = {
       # UserspaceHID=true
     ";
   };
-  nvidiaOptimus.disable = true;
-  bumblebee.enable = false;
+  bumblebee = {
+    enable = true;
+    connectDisplay = true;
+    group = "video";
+  };
   trackpoint = {
-    enable       = true;
+    enable       = false;
     emulateWheel = true;
     sensitivity  = 255;
     speed        = 255;
   };
-
   pulseaudio = with pkgs; {
     enable       = true;
     package      = pulseaudioFull;
@@ -98,10 +107,12 @@ hardware = {
   opengl = {
     driSupport      = true;
     driSupport32Bit = true;
+    extraPackages32 = [ pkgs.linuxPackages.nvidia_x11.lib32 ];
     extraPackages = with pkgs; [
         vaapiIntel
         vaapiVdpau
         libvdpau-va-gl
+        linuxPackages.nvidia_x11.out
     ];
   };
 };
@@ -141,51 +152,56 @@ nixpkgs =
     stackage2nix = import
       builtins.fetchTarball
       https://github.com/typeable/nixpkgs-stackage/archive/master.tar.gz;
+
     patchedSlock = self: super: {
-      slock = nixpkgs1709.slock.overrideAttrs (oldAttrs: {
+      slock = super.slock.overrideAttrs (oldAttrs: {
         patches = [
           (super.fetchpatch {
-            name   = "slock-dpms";
-            url    = "https://tools.suckless.org/slock/patches/slock-dpms-20170923-fa11589.diff";
-            sha256 = "1581ghqynq5v6ysri0d805f8vavfvswdzkgc0x6fmkd7svif0sq1";
-          })
-          (super.fetchpatch {
-            name   = "slock-mediakeys";
-            url    = "https://tools.suckless.org/slock/patches/slock-mediakeys-20170111-2d2a21a.diff";
-            sha256 = "18gf1blh1m56m0n1px6ly0wxp0bpdhjjxyvb8wm5mzfpnnn6gqsz";
-          })
-          (super.fetchpatch {
             name   = "slock-capscolor";
-            url    = "https://tools.suckless.org/slock/patches/slock-capscolor.diff";
-            sha256 = "05nwlvchvnvvqmx1vz1b7vzpcl889lyg59j25pqnaqs01dnn1w0d";
+            url    = "https://tools.suckless.org/slock/patches/capscolor/slock-capscolor-20170106-2d2a21a.diff";
+            sha256 = "1mpzcc6lxwjdhp5kcmrnqqxfx8mcqxn93qb1iqsfn9pcabrzb4bx";
           })
-          (super.fetchpatch {
-            name   = "slock-quickcancel";
-            url    = "https://tools.suckless.org/slock/patches/slock-quickcancel-20160619-65b8d52.diff";
-            sha256 = "0f7pzcr0mj2kccqv8mpizvflqraj2llcn62ayrqf1fjvlr39183v";
-          })
+          # (super.fetchpatch {
+            # name   = "slock-dpms";
+            # url    = "https://tools.suckless.org/slock/patches/dpms/slock-dpms-20170923-fa11589.diff";
+            # sha256 = "1581ghqynq5v6ysri0d805f8vavfvswdzkgc0x6fmkd7svif0sq1";
+          # })
+          # These patches can't be applied :(
+          # (super.fetchpatch {
+            # name   = "slock-quickcancel";
+            # url    = "https://tools.suckless.org/slock/patches/quickcancel/slock-quickcancel-20160619-65b8d52.diff";
+            # sha256 = "0f7pzcr0mj2kccqv8mpizvflqraj2llcn62ayrqf1fjvlr39183v";
+          # })
+          # (super.fetchpatch {
+            # name   = "slock-mediakeys";
+            # url    = "https://tools.suckless.org/slock/patches/mediakeys/slock-mediakeys-20170111-2d2a21a.diff";
+            # sha256 = "18gf1blh1m56m0n1px6ly0wxp0bpdhjjxyvb8wm5mzfpnnn6gqsz";
+          # })
+          # (super.fetchpatch {
+            # name   = "slock-pam";
+            # url    = "https://tools.suckless.org/slock/patches/pam_auth/slock-pam_auth-20190207-35633d4.diff";
+            # sha256 = "0544fpd80hmpbkkbxl1pk487mdapaij5599b91jl90170ikhnp9v";
+          # })
         ];
       });
     };
 
-    haskellPackagesXmonad = self: super: {
-      haskellPackagesXmonad = nixpkgs1709.haskellPackages;
-    };
-
     telegramUnstable =
+      # https://github.com/msva/mva-overlay/
+      # https://github.com/msva/mva-overlay/tree/master/net-im/telegram-desktop
       let wideBaloonsPatch = builtins.fetchurl {
             url = "https://raw.githubusercontent.com/msva/mva-overlay"
-                + "/b9b506d789aba8ca85f4b372a970d776ffb5e394"
-                + "/net-im/telegram-desktop/files/patches/1.5.15/conditional"
+                + "/14e639a87511ea40bff97e4c46100030c1412f05"
+                + "/net-im/telegram-desktop/files/patches/9999/conditional"
                 + "/wide-baloons/0001_baloons-follows-text-width-on-adaptive-layout.patch";
-            sha256 = "0iqvdfjipqv4h5j79430l5cp3hc3pqwknwbh37nr52imk2nrwgj2";
+            sha256 = "12ibh0wfc8jg6hj5dqbvnbzwwjyl86fz65ypvckn8d9msbf0i826";
           };
-          telegram_1_5_15 =
-          (importNixPkgs "cfe6277e62f66a554f92c33f6bbcaf72e55d5c90").tdesktopPackages.stable;
+          telegram = # 1.7.0
+          (importNixPkgs "a6388e030a235bc7336ff6bf80775d104c678608").tdesktopPackages.stable;
       in
       self: super: {
         # tdesktop = self.unstable.tdesktop;
-        tdesktop = telegram_1_5_15.overrideAttrs (attrs: {
+        tdesktop = telegram.overrideAttrs (attrs: {
           patches = [ wideBaloonsPatch ] ++ attrs.patches;
         });
     };
@@ -194,9 +210,18 @@ nixpkgs =
       plex = self.unstable.plex;
     };
 
-    slackDark = self: super: {
-      slack = self.unstable.slack.override { darkMode = true; };
-    };
+    slackDark =
+      let
+        oldDarkSlack =
+          importNixPkgs "ce6edcdb0b203c17752957f384430d89721a589a";
+      in
+      self: super: {
+        slack = oldDarkSlack.slack.override {
+          darkMode = true;
+          darkModeCssUrl =
+            "https://cdn.rawgit.com/rossmckelvie/slack-night-mode/master/css/raw/black.css";
+        };
+      };
 
     dockerUnstable = self: super: {
       docker         = self.unstable.docker;
@@ -227,6 +252,10 @@ nixpkgs =
       blueman     = self.unstable.blueman;
     };
 
+    cbatticonUnstable = self: super: {
+      cbatticon = self.unstable.cbatticon;
+    };
+
     withMasterAndUnstable =
       let
         unstableTar = builtins.fetchTarball
@@ -245,8 +274,8 @@ nixpkgs =
     dunstUnstable = self: super: {
       dunst = self.unstable.dunst;
     };
-    xbanishUnstable = self: super: {
-      xbanish = self.unstable.xbanish;
+    unclutterUnstable = self: super: {
+      unclutter-xfixes = self.unstable.unclutter-xfixes;
     };
     powertopUnstable = self: super: {
       powertop = self.unstable.powertop;
@@ -257,26 +286,31 @@ nixpkgs =
       # plexUnstable
       # stackage2nix
       # bluetoothUnstable
-      pulseaudioUnstable
+      cbatticonUnstable
       dockerUnstable
       dunstUnstable
       golangUnstable
-      haskellPackagesXmonad
       neovimAlias
       patchedSlock
       powertopUnstable
+      pulseaudioUnstable
       slackDark
       stConfigured
       steeloverseer1709
       telegramUnstable
       withMasterAndUnstable
-      xbanishUnstable
+      unclutterUnstable
     ];
     config = {
       allowUnfree = true;
       allowBroken = true;
     };
   };
+
+appstream.enable = true;
+
+environment.variables = with pkgs;
+  lib.mkAfter { GOROOT = [ "${go.out}/share/go" ]; };
 
 environment.systemPackages = with pkgs;
   [
@@ -290,7 +324,7 @@ environment.systemPackages = with pkgs;
     blueman
     # dfilemanager
     libreoffice-fresh
-    # direnv
+    cbatticon
     ffmpeg
     fzf
     gitAndTools.gitFull
@@ -298,11 +332,12 @@ environment.systemPackages = with pkgs;
     xorg.xev
     git-crypt
     gnumake
-    hicolor-icon-theme
     breeze-icons
     plasma5.breeze-gtk
     plasma5.breeze-qt5
-    # gnome3.adwaita-icon-theme
+    hicolor-icon-theme
+    gnome3.adwaita-icon-theme
+    # adapta-gtk-theme
     # faba-mono-icons
     # numix-icon-theme-circle
     # gnome-breeze
@@ -330,7 +365,6 @@ environment.systemPackages = with pkgs;
     paprefs     # pulseaudio
     pasystray   # pulseaudio tray
     pavucontrol # pulseaudio
-    unstable.python35Packages.youtube-dl
     libva-full
     libva-utils
     qt5.qtwebkit
@@ -347,13 +381,17 @@ environment.systemPackages = with pkgs;
     yadm
     tree
     zsh
-    zsh-autoenv
     acpi
+    direnv
     xorg.libXinerama
     file
     lsof
     tig
-    bfg-repo-cleaner
+    # bfg-repo-cleaner
+
+    gnupg
+
+    # master.terraform
 
     zip
     apg
@@ -367,27 +405,48 @@ environment.systemPackages = with pkgs;
     apvlv
     ranger
 
+    bumblebee
+
+    plantuml
+
+    virtmanager
+
+    wireguard
+    wireguard-tools
+    openvpn
+
+    pciutils
+
     # gimp
     pinta
     # nomacs
-    # hdparm
+    unstable.hdparm
+    unstable.smartmontools
     feh
-    gwenview # image viewer
+    # gwenview # image viewer
 
     unstable.dbeaver
+    unstable.postgresql
+    # unstable.konversation
+    unstable.qbittorrent
 
+    unstable.sublime-merge
+
+    # unstable.python35Packages.youtube-dl
     # unstable.rq
     # unstable.ripgrep
     # unstable.fd
     # unstable.bat
 
-    qbittorrent
+    # stack
+    # stack2nix
+    # hpack
 
     slack
     unstable.zoom-us
-    unstable.discord
+    # unstable.discord
     unstable.skype
-    # unstable.viber
+    # master.viber
     tdesktop
 
     traceroute
@@ -401,7 +460,7 @@ environment.systemPackages = with pkgs;
 
     p7zip
 
-    nodePackages.node2nix
+    master.nodePackages.node2nix
 
     go
     dep
@@ -410,13 +469,17 @@ environment.systemPackages = with pkgs;
     vgo2nix
     dep2nix
     gotools
-    golangci-lint
+    # golangci-lint
 
-    remmina
-    gnome3.nautilus
+    # remmina
+    gnome3.nautilus # filemanager
+
+    xdotool
 
     unstable.google-chrome
-    unstable.firefox
+    unstable.chromium
+    # unstable.firefox
+    firefox
 
     vlc
 
@@ -435,14 +498,16 @@ environment.systemPackages = with pkgs;
     unstable.cabal2nix
     haskellPackages.hasktags
     haskellPackages.steeloverseer
-    # haskellPackages.taffybar
-    # haskell.packages.ghc822.taffybar
-    haskellPackagesXmonad.taffybar
+    haskellPackages.status-notifier-item
     haskellPackages.una
-    haskellPackages.threadscope
-    (haskell.lib.dontCheck haskellPackages.elocrypt)
-    unstable.ghc
+    taffybar
+    # haskell.packages.ghc822.taffybar
+    # haskellPackagesXmonad.tcompile")affybar
+    # haskellPackages.threadscope
+    # (master.haskell.lib.dontCheck master.haskellPackages.elocrypt)
+    # unstable.ghc
 
+    unstable.stalonetray
     nmap-graphical
 
     # nixops
@@ -452,7 +517,7 @@ environment.systemPackages = with pkgs;
     # wineFull
     # winetricks
 
-    python3Full
+    # python3Full
 
     i7z
     powertop
@@ -461,7 +526,7 @@ environment.systemPackages = with pkgs;
     dunst # notification
     xkblayout-state # current layout cli
     clipit # clipboard history
-    xbanish # disable cursor while typing
+    unclutter-xfixes # disable cursor while typing
     # xxkb # language
 
     # mosh
@@ -479,48 +544,49 @@ environment.systemPackages = with pkgs;
     # newsbeuter
   ];
 
-environment.variables = with pkgs;
-  lib.mkAfter { GOROOT = [ "${go.out}/share/go" ]; };
-
 networking = {
   hostName        = "anpryl-t460p";
   firewall.enable = false;
+  hosts = {
+    # "172.31.85.198" = [ "api.coins.asia" ];
+  };
   networkmanager  = {
     enable         = true;
     wifi.powersave = true;
   };
 };
 
-systemd.services.nixos-upgrade.path = with pkgs;
-  [ gnutar xz.bin gzip config.nix.package.out ];
-
 services = {
+  openvpn.servers = {
+    coins = {
+      config = "config /home/anpryl/coins/client.ovpn";
+    };
+  };
   fstrim.enable = true;
   acpid = {
     enable = true;
     powerEventCommands = "${pkgs.systemd}/bin/systemctl suspend";
+    lidEventCommands = "/run/wrappers/bin/slock";
   };
-  # pgmanage = {
-    # enable = true;
-    # connections = {
-      # idcardev = "hostaddr=159.69.33.180 port=5432 dbname=idcardev sslmode=allow";
-      # idcarprod = "hostaddr=159.69.33.180 port=5432 dbname=idcarprod sslmode=allow";
-      # surechain_test = "hostaddr=127.0.0.1 port=5432 dbname=surechain_test sslmode=allow";
-    # };
-  # };
   udev.packages = [ pkgs.gnome3.gnome-settings-daemon ];
-  gnome3 = {
-    gnome-keyring.enable = true;
-  };
+  gnome3.gnome-keyring.enable = true;
   autorandr.enable            = true;
-  dbus.enable                 = true;
+  dbus = {
+    enable                 = true;
+    packages = [
+      pkgs.gnome3.dconf
+      # pkgs.system-config-printer
+      pkgs.upower
+      pkgs.vlc
+      pkgs.qt5ct
+    ];
+  };
   # fprintd.enable              = true;
   locate.enable               = true;
   nixosManual.showManual      = true;
   openntpd.enable             = true;
   openssh.enable              = true;
   printing.enable             = false;
-  dbus.packages = [ pkgs.gnome3.dconf pkgs.system-config-printer ];
   logind.extraConfig = ''
     KillUserProcesses=no
   '';
@@ -573,7 +639,7 @@ services = {
     # temperature.night = 3700;
   };
   plex = {
-    enable       = true;
+    enable       = false;
     user         = "anpryl";
     group        = "anpryl";
   };
@@ -587,6 +653,8 @@ services = {
 security.sudo.wheelNeedsPassword = false;
 security.pam.services.slim.enableGnomeKeyring = true;
 
+systemd.services.nixos-upgrade.path = with pkgs;
+  [ gnutar xz.bin gzip config.nix.package.out ];
 
 # https://wiki.archlinux.org/index.php/Power_management#Sleep_hooks
 # https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/services/security/physlock.nix - as example
@@ -597,7 +665,7 @@ systemd.services.lock-on-suspend = {
     Type = "forking";
     User = "anpryl";
     ExecStart = "/run/wrappers/bin/slock";
-    # ExecStartPost = "${pkgs.coreutils}/bin/sleep 1";
+    ExecStartPost = "${pkgs.coreutils}/bin/sleep 1";
   };
   environment.DISPLAY = ":0";
   before = [ "suspend.target" ];
@@ -605,14 +673,23 @@ systemd.services.lock-on-suspend = {
 };
 
 services.xserver = with pkgs; {
-  enable                 = true;
+  enable = true;
+  libinput.enable = true;
+  synaptics.enable = false;
+  config = ''
+    Section "InputClass"
+      Identifier     "Enable libinput for TrackPoint"
+      MatchIsPointer "on"
+      Driver         "libinput"
+    EndSection
+  '';
   autorun                = true;
   exportConfiguration    = true;
   enableCtrlAltBackspace = true;
   layout                 = "us,ru";
-  videoDrivers           = [ "intel" ];
+  # videoDrivers           = [ "intel" ];
   # videoDrivers           = [ "nvidia" ];
-  # videoDrivers           = [ "intel" "nvidia" ];
+  videoDrivers           = [ "nvidia" "intel" ];
 
   # doesn't work :(
   xkbOptions             = "caps:ctrl_modifier,grp:toggle,terminate:ctrl_alt_bksp";
@@ -640,18 +717,23 @@ services.xserver = with pkgs; {
       # ${xorg.xrandr}/bin/xrandr --addmode eDP-1 1920x1080_60.00 &&
       # ${autorandr}/bin/autorandr -c &
       # "xdg-settings set default-web-browser chromium.desktop";
+
+      # ${coreutils}/bin/sleep 5 && ${networkmanagerapplet}/bin/nm-applet &
     sessionCommands = lib.mkAfter ''
+      /run/current-system/sw/bin/xset -dpms
+      /run/current-system/sw/bin/xset s off
       ${xlibs.setxkbmap}/bin/setxkbmap -option caps:ctrl_modifier &
       ${xlibs.setxkbmap}/bin/setxkbmap -option grp:toggle &
       ${xlibs.setxkbmap}/bin/setxkbmap -option terminate:ctrl_alt_bksp &
       ${xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr &
-      ${networkmanagerapplet}/bin/nm-applet &
-      ${pasystray}/bin/pasystray &
-      ${dunst}/bin/dunst &
-      ${clipit}/bin/clipit &
       ${pulseaudioFull}/bin/pulseaudio -k &
-      ${blueman}/bin/blueman-applet &
-      ${coreutils}/bin/sleep 30 && ${xbanish}/bin/xbanish &
+      ${stalonetray}/bin/stalonetray &
+      ${coreutils}/bin/sleep 5 && ${cbatticon}/bin/cbatticon &
+      ${coreutils}/bin/sleep 5 && ${pasystray}/bin/pasystray &
+      ${coreutils}/bin/sleep 5 && ${dunst}/bin/dunst &
+      ${coreutils}/bin/sleep 5 && ${clipit}/bin/clipit &
+      ${coreutils}/bin/sleep 5 && ${blueman}/bin/blueman-applet &
+      ${coreutils}/bin/sleep 30 && ${unclutter-xfixes}/bin/unclutter &
       ${coreutils}/bin/sleep 30 && ${udiskie}/bin/udiskie -taP &
     '';
     slim = {
@@ -672,7 +754,7 @@ services.xserver = with pkgs; {
     xmonad = {
       enable                 = true;
       enableContribAndExtras = true;
-      haskellPackages        = pkgs.haskellPackagesXmonad;
+      # haskellPackages        = haskellPackages;
       extraPackages = hpkgs: [
         hpkgs.taffybar
       ];
@@ -681,6 +763,9 @@ services.xserver = with pkgs; {
 };
 
   programs = {
+    wavemon.enable = true;
+    nm-applet.enable = true;
+    iotop.enable      = true;
     adb.enable        = true;
     vim.defaultEditor = true;
     ssh.startAgent    = true;
@@ -700,7 +785,6 @@ services.xserver = with pkgs; {
     zsh = {
       enable                    = true;
       promptInit                = "";
-      zsh-autoenv.enable        = true;
       ohMyZsh = {
         enable = true;
         theme  = "agnoster";
@@ -720,8 +804,6 @@ services.xserver = with pkgs; {
           "tmux"
           "vagrant"
           "vi-mode"
-          # "autoenv"
-          "zsh-autoenv"
           "colorize"
           "colored-man-pages"
           "go"
@@ -733,16 +815,17 @@ services.xserver = with pkgs; {
   };
 
   virtualisation = {
+    libvirtd.enable = true;
     virtualbox = {
       # guest = {
         # enable = true;
       # };
-      host = {
-        enable              = true;
-        enableHardening     = false;
-        enableExtensionPack = true;
-        headless            = false;
-      };
+      # host = {
+        # enable              = true;
+        # enableHardening     = false;
+        # enableExtensionPack = false;
+        # headless            = false;
+      # };
     };
     docker = {
       enable           = true;
@@ -806,25 +889,22 @@ services.xserver = with pkgs; {
         "vboxusers"
         "power"
         "video"
+        "libvirtd"
+        "qemu-libvirtd"
       ];
     };
   };
 
-  system =
-  let
-    version = "18.09";
-  in {
-    stateVersion = version;
+  system = {
     autoUpgrade = {
       enable      = false;
-      channel     = "https://nixos.org/channels/nixos-" + version;
-      dates       = "10:00";
+      dates       = "23:00";
     };
   };
 
   nix = {
     gc = {
-      automatic = true;
+      automatic = false;
       dates     = "weekly";
       options   = "--delete-older-than 30d";
     };
