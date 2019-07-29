@@ -38,6 +38,7 @@ boot = {
   cleanTmpDir = true;
   initrd.availableKernelModules = [ "hid-logitech-hidpp" ];
   tmpOnTmpfs = false;
+  kernelPackages = pkgs.linuxPackages_latest;
 
   kernelModules = [
     "hid-logitech-hidpp"
@@ -84,11 +85,13 @@ hardware = {
       # UserspaceHID=true
     ";
   };
-  bumblebee = {
-    enable = true;
-    connectDisplay = true;
-    group = "video";
-  };
+  # bumblebee = {
+    # enable = true;
+    # connectDisplay = true;
+    # pmMethod = "bbswitch";
+    # driver = "nvidia";
+    # group = "video";
+  # };
   trackpoint = {
     enable       = false;
     emulateWheel = true;
@@ -107,12 +110,12 @@ hardware = {
   opengl = {
     driSupport      = true;
     driSupport32Bit = true;
-    extraPackages32 = [ pkgs.linuxPackages.nvidia_x11.lib32 ];
+    # extraPackages32 = [ pkgs.linuxPackages.nvidia_x11.lib32 ];
     extraPackages = with pkgs; [
         vaapiIntel
         vaapiVdpau
         libvdpau-va-gl
-        linuxPackages.nvidia_x11.out
+        # linuxPackages.nvidia_x11.out
     ];
   };
 };
@@ -405,7 +408,7 @@ environment.systemPackages = with pkgs;
     apvlv
     ranger
 
-    bumblebee
+    # bumblebee
 
     plantuml
 
@@ -443,7 +446,7 @@ environment.systemPackages = with pkgs;
     # hpack
 
     slack
-    unstable.zoom-us
+    zoom-us
     # unstable.discord
     unstable.skype
     # master.viber
@@ -507,7 +510,9 @@ environment.systemPackages = with pkgs;
     # (master.haskell.lib.dontCheck master.haskellPackages.elocrypt)
     # unstable.ghc
 
-    unstable.stalonetray
+    unstable.polybar
+
+    stalonetray
     nmap-graphical
 
     # nixops
@@ -687,9 +692,9 @@ services.xserver = with pkgs; {
   exportConfiguration    = true;
   enableCtrlAltBackspace = true;
   layout                 = "us,ru";
-  # videoDrivers           = [ "intel" ];
+  videoDrivers           = [ "intel" ];
   # videoDrivers           = [ "nvidia" ];
-  videoDrivers           = [ "nvidia" "intel" ];
+  # videoDrivers           = [  "nvidia" "intel" ];
 
   # doesn't work :(
   xkbOptions             = "caps:ctrl_modifier,grp:toggle,terminate:ctrl_alt_bksp";
@@ -717,6 +722,7 @@ services.xserver = with pkgs; {
       # ${xorg.xrandr}/bin/xrandr --addmode eDP-1 1920x1080_60.00 &&
       # ${autorandr}/bin/autorandr -c &
       # "xdg-settings set default-web-browser chromium.desktop";
+      # ${stalonetray}/bin/stalonetray &
 
       # ${coreutils}/bin/sleep 5 && ${networkmanagerapplet}/bin/nm-applet &
     sessionCommands = lib.mkAfter ''
@@ -727,7 +733,6 @@ services.xserver = with pkgs; {
       ${xlibs.setxkbmap}/bin/setxkbmap -option terminate:ctrl_alt_bksp &
       ${xlibs.xsetroot}/bin/xsetroot -cursor_name left_ptr &
       ${pulseaudioFull}/bin/pulseaudio -k &
-      ${stalonetray}/bin/stalonetray &
       ${coreutils}/bin/sleep 5 && ${cbatticon}/bin/cbatticon &
       ${coreutils}/bin/sleep 5 && ${pasystray}/bin/pasystray &
       ${coreutils}/bin/sleep 5 && ${dunst}/bin/dunst &
